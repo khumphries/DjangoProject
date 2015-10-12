@@ -3,7 +3,8 @@ def main():
     l1 = [1, 3, 3]
     l2 = [3, 1, -2]
     l3 = ['Q', 'Z', 'C', 'A']
-
+    
+    print("Contributions!")
     #Tests
     #print(maxmin(l1))           #(3, 1)
     #print(maxmin(l2))           #(3, -2)
