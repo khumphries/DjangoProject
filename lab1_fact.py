@@ -10,6 +10,8 @@ def main():
     
     print("  _,'|             _.-''``-...___..--';)\n           /_ \\'.      __..-' ,      ,--...--'''\n          <\    .`--'''       `     /'\n           `-';'               ;   ; ;\n     __...--''     ___...--_..'  .;.'\n    (,__....----'''       (,..--''   ")
 
+    print("This is version 1")
+
 def factorial1(n):
     if(n < 0):
         raise ValueError("To whomever it may concern value mustn't be non-positive and non-zero")
