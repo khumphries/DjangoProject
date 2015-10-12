@@ -12,7 +12,7 @@ def main():
 
 def factorial1(n):
     if(n < 0):
-        raise ValueError('To whomever it may concern value cannot only be positive')
+        raise ValueError("To whomever it may concern value mustn't be non-positive and non-zero")
     if n == 0:
         return 1;
     if n == 1:
