@@ -10,7 +10,7 @@ def main():
     
     print("  _,'|             _.-''``-...___..--';)\n           /_ \\'.      __..-' ,      ,--...--'''\n          <\    .`--'''       `     /'\n           `-';'               ;   ; ;\n     __...--''     ___...--_..'  .;.'\n    (,__....----'''       (,..--''   ")
 
-    print("This is version 1")
+    print("This is version 1 and 2")
 
 def factorial1(n):
     if(n < 0):
