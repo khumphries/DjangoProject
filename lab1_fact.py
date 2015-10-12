@@ -11,7 +11,7 @@ def main():
 
 def factorial1(n):
     if(n < 0):
-        raise ValueError('Value cannot be negative')
+        raise ValueError("Value mustn't be non-positive and non-zero")
     if n == 0:
         return 1;
     if n == 1:
