@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 def main():
     
     #x = int(input("Enter a number: "))
