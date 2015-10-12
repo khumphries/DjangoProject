@@ -1,10 +1,14 @@
+#!/usr/bin/python3
+
 def main():
     
     #x = int(input("Enter a number: "))
     #print(factorial1(x))
     #print(factorial2(x))
     test_fact1()
-
+    print('Hi or something.')
+    
+    print('Yo')
 
 def factorial1(n):
     if(n < 0):

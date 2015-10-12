@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 def main():
 
     l1 = [1, 3, 3]
