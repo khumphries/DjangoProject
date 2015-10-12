@@ -4,6 +4,7 @@ def main():
     #print(factorial1(x))
     #print(factorial2(x))
     test_fact1()
+    print('Hi or something.')
 
 
 def factorial1(n):
