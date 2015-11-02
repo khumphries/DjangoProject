@@ -57,7 +57,7 @@ def sign_up_complete(request):
 def login_user(request):
     state = "Please log in below..."
     username = password = ''
-    if requestmethod == 'POST':
+    if request.method == 'POST':
 
         username = request.POST.get('username')
         password = request.POST.get('password')
