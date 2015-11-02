@@ -5,4 +5,4 @@ class DocumentForm(forms.Form):
 
 class UserForm(forms.Form):
 	username = forms.CharField(label='User Name', max_length=30)
-	password = forms.CharField(label='Password', max_length=30)
+	password = forms.CharField(label='Password', max_length=30, widget=forms.PasswordInput)
