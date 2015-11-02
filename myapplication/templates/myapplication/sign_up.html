@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+	<body>
+
+		<form action="{% url 'sign_up' %}" method="post">
+    		{% csrf_token %}
+    		<p>{{form.username.label_tag}} {{ form.username }}</p>
+    		
+    		<p>{{form.password.label_tag}} {{ form.password }}</p>
+    		<input type="submit" value="Submit" />
+		</form>
+
+		<p>Your user name can be no greater than 30 characters.</p>
+
+	</body>
+</html>
