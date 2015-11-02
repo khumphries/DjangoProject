@@ -42,7 +42,7 @@ def sign_up(request):
         form = UserForm(request.POST)
         #checks if data is valid and then 
         if form.is_valid():
-            user = User.objects.create_user(request.POST['username'],'',request.POST['password'])
+            user = User.objects.create_user(form.cleaned_data['username'],'',form.cleaned_data['password'])
             user.save()
             return HttpResponseRedirect(reverse('myapplication.views.sign_up_complete'))
 
@@ -57,7 +57,8 @@ def sign_up_complete(request):
 def login_user(request):
     state = "Please log in below..."
     username = password = ''
-    if request.POST:
+    if requestmethod == 'POST':
+
         username = request.POST.get('username')
         password = request.POST.get('password')
 
@@ -73,5 +74,5 @@ def login_user(request):
             state = "Your username and/or password were incorrect."
 
     return render_to_response('myapplication/auth.html', RequestContext(request, {'state':state, 'username': username}))
-    #return render_to_response('myapplication/auth.html', {'state':state, 'username': username})
+    
 # Create your views here.
