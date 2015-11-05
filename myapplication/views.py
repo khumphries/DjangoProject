@@ -10,9 +10,16 @@ from django.contrib.auth import authenticate, login
 from django.contrib import auth
 
 from myapplication.models import Document
+from myapplication.models import Dct
 from myapplication.forms import DocumentForm
 from myapplication.forms import UserForm
 
+
+# TODO: MK: figure out where this function actually should belong
+def get_home_dct_from_user(user):
+    dct_name = user.username
+    dct = Dct.objects.get(owner=user, stName=dct_name)
+    return dct
 
 def list(request):
     if request.user.is_authenticated():
@@ -20,7 +27,7 @@ def list(request):
         if request.method == 'POST':
             form = DocumentForm(request.POST, request.FILES)
             if form.is_valid():
-                newdoc = Document(docfile = request.FILES['docfile'])
+                newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, dct=get_home_dct_from_user(request.user))
                 newdoc.save()
 
                 # Redirect to the document list after POST
@@ -52,6 +59,8 @@ def sign_up(request):
             else:
                 user = User.objects.create_user(form.cleaned_data['username'],'',form.cleaned_data['password'])
                 user.save()
+                home_dct = Dct(stName=form.cleaned_data['username'], owner=user)
+                home_dct.save()
                 user_authentication = authenticate(username=form.cleaned_data['username'],password=form.cleaned_data['password'])
                 login(request, user_authentication)
                 return HttpResponseRedirect(reverse('myapplication.views.sign_up_complete'))

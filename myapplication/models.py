@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 
 # Hungarian tags for models:
 # dct - a directory
@@ -17,7 +18,9 @@ def validate_dct_stName(stName, dct=None):
 class Dct(models.Model):
     dctParent = models.ForeignKey('self', null=True)
     stName = models.CharField(validators=[validate_dct_stName], max_length=80) # TODO: MK: why 80? No idea
+    owner = models.ForeignKey(User, null=True)
 
 class Document(models.Model):
     docfile = models.FileField(upload_to='documents/%Y/%m/%d')
     dct = models.ForeignKey(Dct, null=True)
+    owner = models.ForeignKey(User, null=True)
