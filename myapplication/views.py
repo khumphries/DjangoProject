@@ -36,7 +36,7 @@ def list(request):
             form = DocumentForm() # A empty, unbound form
 
         # Load documents for the list page
-        documents = Document.objects.all()
+        documents = Document.objects.filter(owner=request.user)
 
         # Render list page with the documents and the form
         return render_to_response(
