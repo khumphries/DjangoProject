@@ -11,6 +11,7 @@ body{
 </style>
 </head>
 <body>
+	<p>Please login for access to the other webpages.</p>
 	{{ state }}
 	<form action="{% url 'login' %}" method="post">
 		{% csrf_token %}	

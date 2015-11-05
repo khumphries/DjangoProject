@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Sign In Success</title>
+        <title>Home</title>
         <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
         <style>
             body{
@@ -9,9 +9,13 @@
             font-size: 12px;
             }
         </style>
+        <p style="font-size:20px">Welcome to secureshare/witness.</p>
+
     </head>
-	<body>
-		<p>The sign in worked</p>
-		<a href="{% url 'home' %}">Home</a>
-	</body>
+    <body>
+
+       <p><a href="{% url 'list' %}">Click here to view the files.</a></p>
+        <p><a href="{% url 'logout' %}">Logout</a></p>
+
+    </body>
 </html>
