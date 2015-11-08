@@ -11,8 +11,10 @@ from django.contrib import auth
 
 from myapplication.models import Document
 from myapplication.models import Dct
+from myapplication.models import Message
 from myapplication.forms import DocumentForm
 from myapplication.forms import UserForm
+from myapplication.forms import MessageForm
 
 
 # TODO: MK: figure out where this function actually should belong
@@ -106,6 +108,35 @@ def logout_user(request):
     if request.user.is_authenticated():
         auth.logout(request)
         return render(request, 'myapplication/loggedout.html')
+    else:
+        return render(request, 'myapplication/auth.html')
+
+def messages(request):
+    if request.user.is_authenticated():
+       # Handle file upload
+        if request.method == 'POST':
+            form = MessageForm(request.POST)
+            if form.is_valid():
+                if User.objects.filter(username=form.cleaned_data['receiver']).exists():
+                    newmsg = Message(msg = request.POST.get('msg'), sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])))
+                    newmsg.save()
+                else:
+                    state="That user does not exist."
+
+                # Redirect to the message list after POST
+                return HttpResponseRedirect(reverse('myapplication.views.messages'))
+        else:
+            form = MessageForm() # An empty, unbound form
+
+        # Load messages sent to user for the messages page
+        messages = Message.objects.filter(receiver=request.user)
+
+        # Render list page with the documents and the form
+        return render_to_response(
+            'myapplication/messages.html',
+            {'messages': messages, 'form': form},
+            context_instance=RequestContext(request)
+        )
     else:
         return render(request, 'myapplication/auth.html')
 # Create your views here.

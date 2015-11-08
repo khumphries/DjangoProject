@@ -24,3 +24,8 @@ class Document(models.Model):
     docfile = models.FileField(upload_to='documents/%Y/%m/%d')
     dct = models.ForeignKey(Dct, null=True)
     owner = models.ForeignKey(User, null=True)
+
+class Message(models.Model):
+	sender = models.ForeignKey(User, related_name="sender")
+	receiver = models.ForeignKey(User, related_name="receiver")
+	msg = models.CharField(max_length=500)
