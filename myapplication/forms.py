@@ -10,4 +10,3 @@ class UserForm(forms.Form):
 class MessageForm(forms.Form):
 	msg = forms.CharField(label="Message", max_length=500)
 	receiver = forms.CharField(label="Recipient", max_length=30)
-	#sender = forms.CharField(label="Sender", max_length=30)

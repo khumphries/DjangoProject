@@ -112,6 +112,7 @@ def logout_user(request):
         return render(request, 'myapplication/auth.html')
 
 def messages(request):
+    state = "Enter message and recipients username below"
     if request.user.is_authenticated():
        # Handle file upload
         if request.method == 'POST':
@@ -120,11 +121,10 @@ def messages(request):
                 if User.objects.filter(username=form.cleaned_data['receiver']).exists():
                     newmsg = Message(msg = request.POST.get('msg'), sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])))
                     newmsg.save()
+                    return HttpResponseRedirect(reverse('myapplication.views.messages'))
                 else:
-                    state="That user does not exist."
-
-                # Redirect to the message list after POST
-                return HttpResponseRedirect(reverse('myapplication.views.messages'))
+                    state="That username does not exist. Please enter a valid username to send message."
+                
         else:
             form = MessageForm() # An empty, unbound form
 
@@ -134,7 +134,7 @@ def messages(request):
         # Render list page with the documents and the form
         return render_to_response(
             'myapplication/messages.html',
-            {'messages': messages, 'form': form},
+            {'messages': messages, 'form': form, 'state':state},
             context_instance=RequestContext(request)
         )
     else:
