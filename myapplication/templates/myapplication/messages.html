@@ -15,7 +15,7 @@
     {% if messages %}
         <ul>
         {% for message in messages %}
-            <li>{{ message.msg }}</li>
+            <li>{{ message.msg }} ---from {{message.sender.username}}</li>
         {% endfor %}
         </ul>
     {% else %}
