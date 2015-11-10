@@ -15,7 +15,9 @@ from myapplication.models import Message
 from myapplication.forms import DocumentForm
 from myapplication.forms import UserForm
 from myapplication.forms import MessageForm
+from myapplication.forms import CLIForm
 
+dctCurr = None
 
 # TODO: MK: figure out where this function actually should belong
 def get_home_dct_from_user(user):
@@ -24,26 +26,41 @@ def get_home_dct_from_user(user):
     return dct
 
 def list(request):
+    global dctCurr
+
     if request.user.is_authenticated():
+        
+        if dctCurr is None:
+            dctCurr = get_home_dct_from_user(request.user)
 	   # Handle file upload
         if request.method == 'POST':
-            form = DocumentForm(request.POST, request.FILES)
-            if form.is_valid():
-                newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, dct=get_home_dct_from_user(request.user))
-                newdoc.save()
+            if 'docfile' in request.POST:
+                docform = DocumentForm(request.POST, request.FILES)
+                if docform.is_valid():
+                    newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, dct=get_home_dct_from_user(request.user))
+                    newdoc.save()
 
                 # Redirect to the document list after POST
-                return HttpResponseRedirect(reverse('myapplication.views.list'))
+                    return HttpResponseRedirect(reverse('myapplication.views.list'))
+
+            elif 'command' in request.POST:
+                cliform = CLIForm(request.POST)
+                if cliform.is_valid():
+                    
+                    return HttpResponseRedirect(reverse('myapplication.views.list'))
+
         else:
-            form = DocumentForm() # A empty, unbound form
+            docform = DocumentForm() # A empty, unbound form
+            cliform = CLIForm()
 
         # Load documents for the list page
-        documents = Document.objects.filter(owner=request.user)
+        documents = Document.objects.filter(dct=dctCurr)
+        rgdct = Dct.objects.filter(dctParent=dctCurr)
 
         # Render list page with the documents and the form
         return render_to_response(
             'myapplication/list.html',
-            {'documents': documents, 'form': form},
+            {'documents': documents, 'rgdct': rgdct, 'docform': docform, 'cliform': cliform, 'dctCurr' : dctCurr},
             context_instance=RequestContext(request)
         )
     else:

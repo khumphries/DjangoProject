@@ -3,6 +3,9 @@ from django import forms
 class DocumentForm(forms.Form):
 	docfile = forms.FileField(label='Select a file', help_text='max. 42 megabytes')
 
+class CLIForm(forms.Form):
+	command = forms.CharField(label='Command', max_length=100, help_text='use standard UNIX file manipulation commands')
+
 class UserForm(forms.Form):
 	username = forms.CharField(label='User Name', max_length=30)
 	password = forms.CharField(label='Password', max_length=30, widget=forms.PasswordInput)
