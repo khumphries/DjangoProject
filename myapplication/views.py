@@ -37,7 +37,7 @@ def list(request):
             if 'docfile' in request.POST:
                 docform = DocumentForm(request.POST, request.FILES)
                 if docform.is_valid():
-                    newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, dct=get_home_dct_from_user(request.user))
+                    newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, dct=dctCurr)
                     newdoc.save()
 
                 # Redirect to the document list after POST
@@ -46,7 +46,13 @@ def list(request):
             elif 'command' in request.POST:
                 cliform = CLIForm(request.POST)
                 if cliform.is_valid():
-                    
+                    rgwrd = request.POST['command'].split(' ')
+                    if rgwrd[0] == 'mkdir':
+                        if len(rgwrd) > 1:
+                            dctNew = Dct(stName=rgwrd[1], owner=request.user, dctParent=dctCurr)
+                            dctNew.save()
+                        else:
+                            pass # return an error somehow?
                     return HttpResponseRedirect(reverse('myapplication.views.list'))
 
         else:
