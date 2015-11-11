@@ -19,11 +19,45 @@ from myapplication.forms import CLIForm
 
 dctCurr = None
 
+def pathFromDct(dct):
+    path = ""
+    while dct is not None:
+        path = dct.stName + "/" + path
+        dct = dct.dctParent
+    path = "root/" + path
+    return path
+
 # TODO: MK: figure out where this function actually should belong
 def get_home_dct_from_user(user):
     dct_name = user.username
     dct = Dct.objects.get(owner=user, stName=dct_name)
     return dct
+
+def shell(rgwrd, request):
+    global dctCurr
+    if rgwrd[0] == 'mkdir':
+        if len(rgwrd) > 1:
+            dctNew = Dct(stName=rgwrd[1], owner=request.user, dctParent=dctCurr)
+            dctNew.save()
+            return
+        else:
+            return # return an error somehow?
+            
+    elif rgwrd[0] == "cd":
+        if len(rgwrd) == 2:
+            stNameDctTarget = rgwrd[1]
+            if stNameDctTarget == "..":
+                dctCurr = dctCurr.dctParent
+                return
+            rgdct = Dct.objects.filter(dctParent=dctCurr).filter(stName=stNameDctTarget)
+            if len(rgdct) > 0:
+                dctCurr = rgdct[0]
+                return
+            else:
+                return # an error somehow
+        else:
+            return # an error somehow
+       
 
 def list(request):
     global dctCurr
@@ -34,7 +68,7 @@ def list(request):
             dctCurr = get_home_dct_from_user(request.user)
 	   # Handle file upload
         if request.method == 'POST':
-            if 'docfile' in request.POST:
+            if 'docfile' in request.FILES:
                 docform = DocumentForm(request.POST, request.FILES)
                 if docform.is_valid():
                     newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, dct=dctCurr)
@@ -47,14 +81,10 @@ def list(request):
                 cliform = CLIForm(request.POST)
                 if cliform.is_valid():
                     rgwrd = request.POST['command'].split(' ')
-                    if rgwrd[0] == 'mkdir':
-                        if len(rgwrd) > 1:
-                            dctNew = Dct(stName=rgwrd[1], owner=request.user, dctParent=dctCurr)
-                            dctNew.save()
-                        else:
-                            pass # return an error somehow?
+                    # parse commands
+                    shell(rgwrd, request)
                     return HttpResponseRedirect(reverse('myapplication.views.list'))
-
+           
         else:
             docform = DocumentForm() # A empty, unbound form
             cliform = CLIForm()
@@ -66,7 +96,7 @@ def list(request):
         # Render list page with the documents and the form
         return render_to_response(
             'myapplication/list.html',
-            {'documents': documents, 'rgdct': rgdct, 'docform': docform, 'cliform': cliform, 'dctCurr' : dctCurr},
+            {'documents': documents, 'rgdct': rgdct, 'docform': docform, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr)},
             context_instance=RequestContext(request)
         )
     else:

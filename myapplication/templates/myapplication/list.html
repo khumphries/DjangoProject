@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Minimal Django File Upload Example</title>  
+        <title>{{dctCurr.stName}}</title>  
         <style>
             body{
             font-family:Arial,Helvetica,sans-serif;
@@ -11,6 +11,7 @@
         </style> 
     </head>
     <body>
+      <p>Current directory: {{path}}</p>
     <!-- List of uploaded documents -->
     {% if documents %}
         <p>Documents in {{dctCurr.stName}}:</p>
@@ -19,8 +20,6 @@
             <li><a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a></li>
         {% endfor %}
         </ul>
-    {% else %}
-        <p>No documents are currently in this directory</p>
     {% endif %}
 
     {% if rgdct %}
@@ -30,8 +29,6 @@
             <p>{{dct.stName}}</p>
         {% endfor %}
         </ul>
-    {% else %}
-        <p>No directories are currently in this directory</p>
     {% endif %}
     
 	<!-- cli form for directory manipulation -->
