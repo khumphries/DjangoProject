@@ -19,6 +19,43 @@ from myapplication.forms import CLIForm
 
 dctCurr = None
 
+# TODO: MK: currently this can totally throw error if you give an invalid path. Need to deal
+# with that somehow, but for now just getting basic functionality
+
+# TODO: MK: this function currently allows you to reach anything in the filesystem.
+# Need to implement reasonable permissions policy here
+def dctFromPath(path, user):
+    if path.endswith("/"):
+        path = path[:-1]
+    if path[0] == '/' or path[0] == '~':
+        # absolute path
+        rgstDct = path.split("/")
+        if rgstDct[0] == "":
+            if not rgstDct[1] == "root":
+                return # this is an error
+            dct = None
+            for stDct in rgstDct[2:]:
+                dct = Dct.objects.filter(stName=stDct).filter(dctParent=dct)[0]
+            return dct
+        elif rgstDct[0] == "~":
+            dct = get_home_dct_from_user(user)
+            for stDct in rgstDct[1:]:
+                dct = Dct.objects.filter(stName=stDct).filter(dctParent=dct)[0]
+            return dct
+        else:
+            return # this is an error
+    else:
+        # relative path to dctCurr
+        dct = dctCurr
+        rgstDct = path.split("/")
+        for stDct in rgstDct:
+            if stDct == "..":
+                dct = dct.dctParent
+            else:
+                dct = Dct.objects.filter(stName=stDct).filter(dctParent=dct)[0]
+        
+        return dct
+
 def pathFromDct(dct):
     path = ""
     while dct is not None:
@@ -27,7 +64,6 @@ def pathFromDct(dct):
     path = "root/" + path
     return path
 
-# TODO: MK: figure out where this function actually should belong
 def get_home_dct_from_user(user):
     dct_name = user.username
     dct = Dct.objects.get(owner=user, stName=dct_name)
@@ -53,7 +89,12 @@ def shell(rgwrd, request):
             if len(rgdct) > 0:
                 dctCurr = rgdct[0]
                 return
-            else:
+            
+            try:
+                dctTarget = dctFromPath(stNameDctTarget, request.user)
+                dctCurr = dctTarget
+                return
+            except:
                 return # an error somehow
         else:
             return # an error somehow
