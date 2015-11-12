@@ -25,6 +25,7 @@ dctCurr = None
 # TODO: MK: this function currently allows you to reach anything in the filesystem.
 # Need to implement reasonable permissions policy here
 def dctFromPath(path, user):
+#    print(path)
     if path.endswith("/"):
         path = path[:-1]
     if path[0] == '/' or path[0] == '~':
@@ -38,9 +39,11 @@ def dctFromPath(path, user):
                 dct = Dct.objects.filter(stName=stDct).filter(dctParent=dct)[0]
             return dct
         elif rgstDct[0] == "~":
+            print("entering a ~ path")
             dct = get_home_dct_from_user(user)
             for stDct in rgstDct[1:]:
                 dct = Dct.objects.filter(stName=stDct).filter(dctParent=dct)[0]
+            print("leaving a ~ path")
             return dct
         else:
             return # this is an error
@@ -99,6 +102,36 @@ def shell(rgwrd, request):
         else:
             return # an error somehow
        
+    elif rgwrd[0] == "mv":
+        if len(rgwrd) == 3:
+            src = rgwrd[1]
+            dst = rgwrd[2]
+            try:
+                dctSrc = dctFromPath(src, request.user)
+            except:
+                dctSrc = None
+            
+            if dctSrc is not None:
+                stNameNew = None
+                try:
+                    dctDst = dstFromPath(dst, request.user)
+                except:
+                    dctDst = None
+                if dctDst is None:
+                    try:
+                        dctDst = dctFromPath("/".join(dst.split("/")[:-1]), request.user)
+                        stNameNew = dst.split("/")[-1]
+                    except:
+                        print("dctDst is not a valid directory")
+                        return # an error - dst is not a valid directory
+                dctSrc.dctParent = dctDst
+                if stNameNew is not None:
+                    dctSrc.stName = stNameNew
+                dctSrc.save()
+            else:
+                return # TODO: MK: in here handle calling mv on reports
+        else:
+            return # an error
 
 def list(request):
     global dctCurr
