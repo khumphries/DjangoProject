@@ -11,17 +11,11 @@
         </style> 
     </head>
     <body>
-    <!-- List of messages -->
-    
-    {% if messages %}
-        <ul>
-        {% for message in messages %}
-            <li>{{ message.msg }} ---from {{message.sender.username}}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No messages.</p>
-    {% endif %}
+
+    <p><a href="{% url 'inbox' %}">Inbox</a></p>
+    <p><a href="{% url 'outbox' %}">Sent Messages</a></p>
+
+      <!-- Send message -->
     {{ state }}
         <form action="{% url 'messages' %}" method="post">
             {% csrf_token %}

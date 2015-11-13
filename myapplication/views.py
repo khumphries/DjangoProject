@@ -142,7 +142,7 @@ def messages(request):
             form = MessageForm(request.POST)
             if form.is_valid():
                 if User.objects.filter(username=form.cleaned_data['receiver']).exists():
-                    newmsg = Message(msg = request.POST.get('msg'), sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])))
+                    newmsg = Message(msg = request.POST.get('msg'), sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])), inInbox = True, inOutbox = True)
                     newmsg.save()
                     return HttpResponseRedirect(reverse('myapplication.views.messages'))
                 else:
@@ -154,7 +154,7 @@ def messages(request):
         # Load messages sent to user for the messages page
         messages = Message.objects.filter(receiver=request.user)
 
-        # Render list page with the documents and the form
+        # Render messages page with the messages, state, and form
         return render_to_response(
             'myapplication/messages.html',
             {'messages': messages, 'form': form, 'state':state},
@@ -162,4 +162,34 @@ def messages(request):
         )
     else:
         return render(request, 'myapplication/auth.html')
+
+
+def inbox(request):
+    
+    if request.user.is_authenticated():
+        messages = Message.objects.filter(receiver=request.user)
+
+        # Render inbox page with the messages
+        return render_to_response(
+            'myapplication/inbox.html',
+            {'messages': messages},
+            context_instance=RequestContext(request)
+        )
+    else:
+        return render(request, 'myapplication/auth.html')
+
+def outbox(request):
+    
+    if request.user.is_authenticated():
+        messages = Message.objects.filter(sender=request.user)
+
+        # Render inbox page with the messages
+        return render_to_response(
+            'myapplication/outbox.html',
+            {'messages': messages},
+            context_instance=RequestContext(request)
+        )
+    else:
+        return render(request, 'myapplication/auth.html')
+
 # Create your views here.
