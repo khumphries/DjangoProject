@@ -19,11 +19,119 @@ from myapplication.forms import CLIForm
 
 dctCurr = None
 
-# TODO: MK: figure out where this function actually should belong
+# TODO: MK: currently this can totally throw error if you give an invalid path. Need to deal
+# with that somehow, but for now just getting basic functionality
+
+# TODO: MK: this function currently allows you to reach anything in the filesystem.
+# Need to implement reasonable permissions policy here
+def dctFromPath(path, user):
+#    print(path)
+    if path.endswith("/"):
+        path = path[:-1]
+    if path[0] == '/' or path[0] == '~':
+        # absolute path
+        rgstDct = path.split("/")
+        if rgstDct[0] == "":
+            if not rgstDct[1] == "root":
+                return # this is an error
+            dct = None
+            for stDct in rgstDct[2:]:
+                dct = Dct.objects.filter(stName=stDct).filter(dctParent=dct)[0]
+            return dct
+        elif rgstDct[0] == "~":
+            print("entering a ~ path")
+            dct = get_home_dct_from_user(user)
+            for stDct in rgstDct[1:]:
+                dct = Dct.objects.filter(stName=stDct).filter(dctParent=dct)[0]
+            print("leaving a ~ path")
+            return dct
+        else:
+            return # this is an error
+    else:
+        # relative path to dctCurr
+        dct = dctCurr
+        rgstDct = path.split("/")
+        for stDct in rgstDct:
+            if stDct == "..":
+                dct = dct.dctParent
+            else:
+                dct = Dct.objects.filter(stName=stDct).filter(dctParent=dct)[0]
+        
+        return dct
+
+def pathFromDct(dct):
+    path = ""
+    while dct is not None:
+        path = dct.stName + "/" + path
+        dct = dct.dctParent
+    path = "root/" + path
+    return path
+
 def get_home_dct_from_user(user):
     dct_name = user.username
     dct = Dct.objects.get(owner=user, stName=dct_name)
     return dct
+
+def shell(rgwrd, request):
+    global dctCurr
+    if rgwrd[0] == 'mkdir':
+        if len(rgwrd) > 1:
+            dctNew = Dct(stName=rgwrd[1], owner=request.user, dctParent=dctCurr)
+            dctNew.save()
+            return
+        else:
+            return # return an error somehow?
+            
+    elif rgwrd[0] == "cd":
+        if len(rgwrd) == 2:
+            stNameDctTarget = rgwrd[1]
+            if stNameDctTarget == "..":
+                dctCurr = dctCurr.dctParent
+                return
+            rgdct = Dct.objects.filter(dctParent=dctCurr).filter(stName=stNameDctTarget)
+            if len(rgdct) > 0:
+                dctCurr = rgdct[0]
+                return
+            
+            try:
+                dctTarget = dctFromPath(stNameDctTarget, request.user)
+                dctCurr = dctTarget
+                return
+            except:
+                return # an error somehow
+        else:
+            return # an error somehow
+       
+    elif rgwrd[0] == "mv":
+        if len(rgwrd) == 3:
+            src = rgwrd[1]
+            dst = rgwrd[2]
+            try:
+                dctSrc = dctFromPath(src, request.user)
+            except:
+                dctSrc = None
+            
+            if dctSrc is not None:
+                stNameNew = None
+                try:
+                    dctDst = dstFromPath(dst, request.user)
+                except:
+                    dctDst = None
+                if dctDst is None:
+                    try:
+                        dctDst = dctFromPath("/".join(dst.split("/")[:-1]), request.user)
+                        stNameNew = dst.split("/")[-1]
+                    except:
+                        print("dctDst is not a valid directory")
+                        return # an error - dst is not a valid directory
+                dctSrc.dctParent = dctDst
+                if stNameNew is not None:
+                    dctSrc.stName = stNameNew
+                dctSrc.save()
+            else:
+                return # TODO: MK: in here handle calling mv on reports
+        else:
+            return # an error
 
 def list(request):
     global dctCurr
@@ -34,7 +142,7 @@ def list(request):
             dctCurr = get_home_dct_from_user(request.user)
 	   # Handle file upload
         if request.method == 'POST':
-            if 'docfile' in request.POST:
+            if 'docfile' in request.FILES:
                 docform = DocumentForm(request.POST, request.FILES)
                 if docform.is_valid():
                     newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, dct=dctCurr)
@@ -47,14 +155,10 @@ def list(request):
                 cliform = CLIForm(request.POST)
                 if cliform.is_valid():
                     rgwrd = request.POST['command'].split(' ')
-                    if rgwrd[0] == 'mkdir':
-                        if len(rgwrd) > 1:
-                            dctNew = Dct(stName=rgwrd[1], owner=request.user, dctParent=dctCurr)
-                            dctNew.save()
-                        else:
-                            pass # return an error somehow?
+                    # parse commands
+                    shell(rgwrd, request)
                     return HttpResponseRedirect(reverse('myapplication.views.list'))
-
+           
         else:
             docform = DocumentForm() # A empty, unbound form
             cliform = CLIForm()
@@ -66,7 +170,7 @@ def list(request):
         # Render list page with the documents and the form
         return render_to_response(
             'myapplication/list.html',
-            {'documents': documents, 'rgdct': rgdct, 'docform': docform, 'cliform': cliform, 'dctCurr' : dctCurr},
+            {'documents': documents, 'rgdct': rgdct, 'docform': docform, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr)},
             context_instance=RequestContext(request)
         )
     else:
