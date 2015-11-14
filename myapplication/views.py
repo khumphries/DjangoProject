@@ -246,7 +246,7 @@ def messages(request):
             form = MessageForm(request.POST)
             if form.is_valid():
                 if User.objects.filter(username=form.cleaned_data['receiver']).exists():
-                    newmsg = Message(msg = request.POST.get('msg'), sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])), inInbox = True, inOutbox = True)
+                    newmsg = Message(msg = request.POST.get('msg'), sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])))
                     newmsg.save()
                     return HttpResponseRedirect(reverse('myapplication.views.messages'))
                 else:
