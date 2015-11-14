@@ -15,35 +15,162 @@ from myapplication.models import Message
 from myapplication.forms import DocumentForm
 from myapplication.forms import UserForm
 from myapplication.forms import MessageForm
+from myapplication.forms import CLIForm
 
+dctCurr = None
 
-# TODO: MK: figure out where this function actually should belong
+# TODO: MK: currently this can totally throw error if you give an invalid path. Need to deal
+# with that somehow, but for now just getting basic functionality
+
+# TODO: MK: this function currently allows you to reach anything in the filesystem.
+# Need to implement reasonable permissions policy here
+def dctFromPath(path, user):
+#    print(path)
+    if path.endswith("/"):
+        path = path[:-1]
+    if path[0] == '/' or path[0] == '~':
+        # absolute path
+        rgstDct = path.split("/")
+        if rgstDct[0] == "":
+            if not rgstDct[1] == "root":
+                return # this is an error
+            dct = None
+            for stDct in rgstDct[2:]:
+                dct = Dct.objects.filter(stName=stDct).filter(dctParent=dct)[0]
+            return dct
+        elif rgstDct[0] == "~":
+            print("entering a ~ path")
+            dct = get_home_dct_from_user(user)
+            for stDct in rgstDct[1:]:
+                dct = Dct.objects.filter(stName=stDct).filter(dctParent=dct)[0]
+            print("leaving a ~ path")
+            return dct
+        else:
+            return # this is an error
+    else:
+        # relative path to dctCurr
+        dct = dctCurr
+        rgstDct = path.split("/")
+        for stDct in rgstDct:
+            if stDct == "..":
+                dct = dct.dctParent
+            else:
+                dct = Dct.objects.filter(stName=stDct).filter(dctParent=dct)[0]
+        
+        return dct
+
+def pathFromDct(dct):
+    path = ""
+    while dct is not None:
+        path = dct.stName + "/" + path
+        dct = dct.dctParent
+    path = "root/" + path
+    return path
+
 def get_home_dct_from_user(user):
     dct_name = user.username
     dct = Dct.objects.get(owner=user, stName=dct_name)
     return dct
 
+def shell(rgwrd, request):
+    global dctCurr
+    if rgwrd[0] == 'mkdir':
+        if len(rgwrd) > 1:
+            dctNew = Dct(stName=rgwrd[1], owner=request.user, dctParent=dctCurr)
+            dctNew.save()
+            return
+        else:
+            return # return an error somehow?
+            
+    elif rgwrd[0] == "cd":
+        if len(rgwrd) == 2:
+            stNameDctTarget = rgwrd[1]
+            if stNameDctTarget == "..":
+                dctCurr = dctCurr.dctParent
+                return
+            rgdct = Dct.objects.filter(dctParent=dctCurr).filter(stName=stNameDctTarget)
+            if len(rgdct) > 0:
+                dctCurr = rgdct[0]
+                return
+            
+            try:
+                dctTarget = dctFromPath(stNameDctTarget, request.user)
+                dctCurr = dctTarget
+                return
+            except:
+                return # an error somehow
+        else:
+            return # an error somehow
+       
+    elif rgwrd[0] == "mv":
+        if len(rgwrd) == 3:
+            src = rgwrd[1]
+            dst = rgwrd[2]
+            try:
+                dctSrc = dctFromPath(src, request.user)
+            except:
+                dctSrc = None
+            
+            if dctSrc is not None:
+                stNameNew = None
+                try:
+                    dctDst = dstFromPath(dst, request.user)
+                except:
+                    dctDst = None
+                if dctDst is None:
+                    try:
+                        dctDst = dctFromPath("/".join(dst.split("/")[:-1]), request.user)
+                        stNameNew = dst.split("/")[-1]
+                    except:
+                        print("dctDst is not a valid directory")
+                        return # an error - dst is not a valid directory
+                dctSrc.dctParent = dctDst
+                if stNameNew is not None:
+                    dctSrc.stName = stNameNew
+                dctSrc.save()
+            else:
+                return # TODO: MK: in here handle calling mv on reports
+        else:
+            return # an error
+
 def list(request):
+    global dctCurr
+
     if request.user.is_authenticated():
+        
+        if dctCurr is None:
+            dctCurr = get_home_dct_from_user(request.user)
 	   # Handle file upload
         if request.method == 'POST':
-            form = DocumentForm(request.POST, request.FILES)
-            if form.is_valid():
-                newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, dct=get_home_dct_from_user(request.user))
-                newdoc.save()
+            if 'docfile' in request.FILES:
+                docform = DocumentForm(request.POST, request.FILES)
+                if docform.is_valid():
+                    newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, dct=dctCurr)
+                    newdoc.save()
 
                 # Redirect to the document list after POST
-                return HttpResponseRedirect(reverse('myapplication.views.list'))
+                    return HttpResponseRedirect(reverse('myapplication.views.list'))
+
+            elif 'command' in request.POST:
+                cliform = CLIForm(request.POST)
+                if cliform.is_valid():
+                    rgwrd = request.POST['command'].split(' ')
+                    # parse commands
+                    shell(rgwrd, request)
+                    return HttpResponseRedirect(reverse('myapplication.views.list'))
+           
         else:
-            form = DocumentForm() # A empty, unbound form
+            docform = DocumentForm() # A empty, unbound form
+            cliform = CLIForm()
 
         # Load documents for the list page
-        documents = Document.objects.filter(owner=request.user)
+        documents = Document.objects.filter(dct=dctCurr)
+        rgdct = Dct.objects.filter(dctParent=dctCurr)
 
         # Render list page with the documents and the form
         return render_to_response(
             'myapplication/list.html',
-            {'documents': documents, 'form': form},
+            {'documents': documents, 'rgdct': rgdct, 'docform': docform, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr)},
             context_instance=RequestContext(request)
         )
     else:
@@ -119,7 +246,7 @@ def messages(request):
             form = MessageForm(request.POST)
             if form.is_valid():
                 if User.objects.filter(username=form.cleaned_data['receiver']).exists():
-                    newmsg = Message(msg = request.POST.get('msg'), sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])))
+                    newmsg = Message(msg = request.POST.get('msg'), sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])), inInbox = True, inOutbox = True)
                     newmsg.save()
                     return HttpResponseRedirect(reverse('myapplication.views.messages'))
                 else:
@@ -131,7 +258,7 @@ def messages(request):
         # Load messages sent to user for the messages page
         messages = Message.objects.filter(receiver=request.user)
 
-        # Render list page with the documents and the form
+        # Render messages page with the messages, state, and form
         return render_to_response(
             'myapplication/messages.html',
             {'messages': messages, 'form': form, 'state':state},
@@ -139,4 +266,34 @@ def messages(request):
         )
     else:
         return render(request, 'myapplication/auth.html')
+
+
+def inbox(request):
+    
+    if request.user.is_authenticated():
+        messages = Message.objects.filter(receiver=request.user)
+
+        # Render inbox page with the messages
+        return render_to_response(
+            'myapplication/inbox.html',
+            {'messages': messages},
+            context_instance=RequestContext(request)
+        )
+    else:
+        return render(request, 'myapplication/auth.html')
+
+def outbox(request):
+    
+    if request.user.is_authenticated():
+        messages = Message.objects.filter(sender=request.user)
+
+        # Render inbox page with the messages
+        return render_to_response(
+            'myapplication/outbox.html',
+            {'messages': messages},
+            context_instance=RequestContext(request)
+        )
+    else:
+        return render(request, 'myapplication/auth.html')
+
 # Create your views here.

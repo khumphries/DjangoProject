@@ -10,4 +10,6 @@ urlpatterns = patterns('myapplication.views',
     url(r'^home/$', views.home_page, name='home'),
     url(r'^logout/$', views.logout_user, name='logout'),
     url(r'^messages/$', views.messages, name='messages'),
+    url(r'^inbox/$', views.inbox, name='inbox'),
+    url(r'^outbox/$', views.outbox, name='outbox'),
 )
