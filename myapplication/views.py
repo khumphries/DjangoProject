@@ -101,7 +101,24 @@ def shell(rgwrd, request):
                 return # an error somehow
         else:
             return # an error somehow
-       
+ 
+    elif rgwrd[0] == "rm":
+        fForce = False
+        if rgwrd[1].startswith("-"):
+            # process flags
+            pathToTarget = rgwrd[2]
+            if "f" in rgwrd[1]:
+                fForce = True
+        else:
+            pathToTarget = rgwrd[1]
+        
+        dctTarget = dctFromPath(pathToTarget, request.user)
+        if dctTarget is not None:
+            cdct = Dct.objects.all().filter(dctParent=dctTarget)
+            cdoc = Document.objects.all().filter(dct=dctTarget)
+            if len(cdct) == 0 and len(cdoc) == 0 and fForce:
+                dctTarget.delete()
+ 
     elif rgwrd[0] == "mv":
         if len(rgwrd) == 3:
             src = rgwrd[1]
