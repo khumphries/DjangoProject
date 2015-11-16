@@ -343,7 +343,7 @@ def messages(request):
 
 
 def inbox(request):
-    state = "hello"
+    state = ""
     if request.user.is_authenticated():
         messages = Message.objects.filter(receiver=request.user, display=True)
 
@@ -352,7 +352,8 @@ def inbox(request):
             sender = request.POST.get('sender')
             receiver = request.POST.get('receiver')
             deletedMessage = Message.objects.get(msg=request.POST.get('msg'))
-            deletedMessage.delete()
+            deletedMessage.display = False
+            deletedMessage.save()
             state = "Message Deleted"
                 #return HttpResponseRedirect(reverse('myapplication.views.inbox'))
 
