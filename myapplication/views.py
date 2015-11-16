@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -343,14 +343,23 @@ def messages(request):
 
 
 def inbox(request):
-    
+    state = "hello"
     if request.user.is_authenticated():
-        messages = Message.objects.filter(receiver=request.user)
+        messages = Message.objects.filter(receiver=request.user, display=True)
+
+        if request.method == 'POST':
+            msg = request.POST.get('msg')
+            sender = request.POST.get('sender')
+            receiver = request.POST.get('receiver')
+            deletedMessage = Message.objects.get(msg=request.POST.get('msg'))
+            deletedMessage.delete()
+            state = "Message Deleted"
+                #return HttpResponseRedirect(reverse('myapplication.views.inbox'))
 
         # Render inbox page with the messages
         return render_to_response(
             'myapplication/inbox.html',
-            {'messages': messages},
+            {'messages': messages, 'state':state},
             context_instance=RequestContext(request)
         )
     else:
@@ -361,7 +370,7 @@ def outbox(request):
     if request.user.is_authenticated():
         messages = Message.objects.filter(sender=request.user)
 
-        # Render inbox page with the messages
+        # Render outbox page with the messages
         return render_to_response(
             'myapplication/outbox.html',
             {'messages': messages},

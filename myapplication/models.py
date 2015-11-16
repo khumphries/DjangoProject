@@ -26,7 +26,8 @@ class Document(models.Model):
     owner = models.ForeignKey(User, null=True)
 
 class Message(models.Model):
-	sender = models.ForeignKey(User, related_name="sender")
-	receiver = models.ForeignKey(User, related_name="receiver")
-	msg = models.CharField(max_length=500)
+    sender = models.ForeignKey(User, related_name="sender")
+    receiver = models.ForeignKey(User, related_name="receiver")
+    msg = models.CharField(max_length=500)
+    display = models.BooleanField(default=True)
     

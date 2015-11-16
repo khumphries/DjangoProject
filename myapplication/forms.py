@@ -1,4 +1,5 @@
 from django import forms
+from .models import Message
 
 class DocumentForm(forms.Form):
 	docfile = forms.FileField(label='Select a file', help_text='max. 42 megabytes')
@@ -17,3 +18,4 @@ class GroupsForm(forms.Form):
 class MessageForm(forms.Form):
 	msg = forms.CharField(label="Message", max_length=500)
 	receiver = forms.CharField(label="Recipient", max_length=30)
+
