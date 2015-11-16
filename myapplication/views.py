@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth import authenticate, login
 from django.contrib import auth
 
@@ -16,6 +16,7 @@ from myapplication.forms import DocumentForm
 from myapplication.forms import UserForm
 from myapplication.forms import MessageForm
 from myapplication.forms import CLIForm
+from myapplication.forms import GroupsForm
 
 dctCurr = None
 
@@ -175,6 +176,60 @@ def list(request):
         )
     else:
         return render(request, 'myapplication/auth.html')
+
+def groups_list(request):
+    if request.user.is_authenticated():
+        return
+
+def groups_creator(request):
+    if request.user.is_authenticated():
+        state = ''
+        if request.method == 'POST':
+            form = GroupsForm(request.POST)
+            if form.is_valid():
+                #checks if group already exists
+                if Group.objects.filter(name=form.cleaned_data['groupname']).exists():
+                    old_group = Group.objects.get(name=form.cleaned_data['groupname'])
+                    #Checks if user is valid
+                    if User.objects.filter(username=form.cleaned_data['username']).exists():
+                        user = User.objects.get(username=form.cleaned_data['username'])
+                        #checks if user is already in the group
+                        if user.groups.filter(name=form.cleaned_data['groupname']).exists():
+                            state = 'That user is already in the group.'
+
+                        #adds user to group and saves it in the database
+                        else:
+                            if request.user.groups.filter(name=form.cleaned_data['groupname']).exists():
+                                user.groups.add(old_group)
+                                old_group.save()
+                                user.save()
+                                state = 'User successfully added.'
+                                return HttpResponseRedirect(reverse('myapplication.views.groups_creator'))
+                            else:
+                                state = 'You must be in the group to add another user to the group.'
+                    else :
+                        state = 'That user does not exist. Please try again.'
+                else :
+                    if form.cleaned_data['username'] == request.user.get_username():
+                        new_group = Group.objects.create(name=form.cleaned_data['groupname'])
+                        new_group.user_set.add(request.user)
+                        new_group.save()
+                        request.user.save()
+                        state = 'Group successfully created.'
+                        return HttpResponseRedirect(reverse('myapplication.views.groups_creator'))
+                    else :
+                        state = 'Group with that name already exists.'
+            else :
+                state = 'Please fill all the fields.'
+        else :
+            form = GroupsForm()
+            
+
+
+        return render(request,'myapplication/groups_creator.html', {'form' : form, 'state' : state})
+    else :
+        return render(request, 'myapplication/auth.html')        
+
 #For signup page
 def sign_up(request):
     #if we need to process form data
@@ -193,7 +248,9 @@ def sign_up(request):
                 user_authentication = authenticate(username=form.cleaned_data['username'],password=form.cleaned_data['password'])
                 login(request, user_authentication)
                 return HttpResponseRedirect(reverse('myapplication.views.sign_up_complete'))
-
+        else :
+            state = 'Please fill out all fields.'
+            return HttpResponseRedirect(reverse('myapplication.views.groups_creator'))
     else:
         form = UserForm()
 
@@ -295,5 +352,7 @@ def outbox(request):
         )
     else:
         return render(request, 'myapplication/auth.html')
+
+
 
 # Create your views here.

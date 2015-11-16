@@ -24,6 +24,8 @@
             
             <p>{{form.receiver.label_tag}} {{ form.receiver }}</p>
             <input type="submit" value="Send" />
+            <p><a href="{% url 'home' %}">Home</a></p>
+            <p><a href="{% url 'logout' %}">Logout</a></p>
         </form>
         
     </body>

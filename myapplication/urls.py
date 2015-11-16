@@ -12,4 +12,6 @@ urlpatterns = patterns('myapplication.views',
     url(r'^messages/$', views.messages, name='messages'),
     url(r'^inbox/$', views.inbox, name='inbox'),
     url(r'^outbox/$', views.outbox, name='outbox'),
+    url(r'^groups_creator/$', views.groups_creator, name='groups_creator'),
+    url(r'^groups/$', views.groups_list, name='groups'),
 )
