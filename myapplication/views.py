@@ -196,7 +196,12 @@ def list(request):
 
 def groups_list(request):
     if request.user.is_authenticated():
-        return
+
+        groups = request.user.groups.values_list('name',flat=True)
+        print(groups)
+        return render_to_response('myapplication/groups.html', {'groups' : groups}, context_instance=RequestContext(request))
+    else :
+        return render(request, 'myapplication/auth.html')
 
 def groups_creator(request):
     if request.user.is_authenticated():

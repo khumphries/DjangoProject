@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Groups</title>  
+        <style>
+            body{
+            font-family:Arial,Helvetica,sans-serif;
+            font-size: 12px;
+            }
+        </style> 
+    </head>
+    <body>
+    <p>User is in following groups:</p>
+    {% if groups %}
+        <ul>
+        {% for group in groups %}
+            <li>{{ group}}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    <p><a href="{% url 'home' %}">Home</a></p>
+    <p><a href="{% url 'logout' %}">Logout</a></p>
+
+    </body>
+</html>
