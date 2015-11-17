@@ -38,6 +38,10 @@
 	  <p>{{cliform.command.help_text}}</p>
 	</form>
 
+	{% if stErr %}
+	    <p>{{stErr}}<p>
+	{% endif %}
+
         <!-- Upload form. Note enctype attribute! -->
         <form action="{% url 'list' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
