@@ -245,7 +245,7 @@ def messages(request):
 def inbox(request):
     state = ""
     if request.user.is_authenticated():
-        messages = Message.objects.filter(receiver=request.user, display=True)
+        messages = Message.objects.filter(receiver=request.user, display=True).order_by('-sentDate')
 
         if request.method == 'POST':
             msg = request.POST.get('msg')
@@ -269,7 +269,7 @@ def inbox(request):
 def outbox(request):
     
     if request.user.is_authenticated():
-        messages = Message.objects.filter(sender=request.user)
+        messages = Message.objects.filter(sender=request.user).order_by('-sentDate')
 
         # Render outbox page with the messages
         return render_to_response(
