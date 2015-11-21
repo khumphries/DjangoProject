@@ -16,7 +16,11 @@
     {% if messages %}
         <ul>
         {% for message in messages %}
-            <li>{{ message.msg }} ---from {{message.sender.username}}</li>
+            <li>Subject: {{ message.subject }}<br>
+                From: {{message.sender.username}}<br>
+                Date Sent: {{message.sentDate}}<br><br>
+                Message: {{message.msg}} 
+            </li>
             <form action="{% url 'inbox' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="receiver" value="{{ message.receiver }}" />

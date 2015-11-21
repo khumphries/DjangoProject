@@ -220,7 +220,7 @@ def messages(request):
                     #comment out if pycrypto import not working for you
                     if form.cleaned_data['encrypt'] == True:                      
                         msg = str(encrypt_msg(msg))                 
-                    newmsg = Message(msg = msg, sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])), encrypt=form.cleaned_data['encrypt'])
+                    newmsg = Message(subject= form.cleaned_data['subject'], msg = msg, sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])), encrypt=form.cleaned_data['encrypt'])
                     newmsg.save()
                     return HttpResponseRedirect(reverse('myapplication.views.messages'))
                 else:

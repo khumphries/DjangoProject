@@ -20,6 +20,7 @@
         <form action="{% url 'messages' %}" method="post">
             {% csrf_token %}
             <p>{{ form.non_field_errors }}</p>
+            <p>{{ form.subject.label_tag }} {{ form.subject }}</p>
             <p>{{form.msg.label_tag}} {{ form.msg }}</p>
             <p>{{form.encrypt.label_tag}} {{form.encrypt}}</p> 
             <p>{{form.receiver.label_tag}} {{ form.receiver }}</p>
