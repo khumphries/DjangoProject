@@ -22,6 +22,9 @@ from myapplication.shell import shell
 from myapplication.shell import get_home_dct_from_user
 from myapplication.shell import pathFromDct
 
+#comment out if pycrypto import not working for you, also comment out the part in messages where it's used
+from myapplication.encrypt_message import encrypt_msg
+
 dctCurr = None
 fErrDisplayed = False
 stErr = ""
@@ -213,7 +216,11 @@ def messages(request):
             form = MessageForm(request.POST)
             if form.is_valid():
                 if User.objects.filter(username=form.cleaned_data['receiver']).exists():
-                    newmsg = Message(msg = request.POST.get('msg'), sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])))
+                    msg = request.POST.get('msg')
+                    #comment out if pycrypto import not working for you
+                    if form.cleaned_data['encrypt'] == True:                      
+                        msg = str(encrypt_msg(msg))                 
+                    newmsg = Message(msg = msg, sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])), encrypt=form.cleaned_data['encrypt'])
                     newmsg.save()
                     return HttpResponseRedirect(reverse('myapplication.views.messages'))
                 else:
@@ -244,7 +251,7 @@ def inbox(request):
             msg = request.POST.get('msg')
             sender = request.POST.get('sender')
             receiver = request.POST.get('receiver')
-            deletedMessage = Message.objects.get(msg=request.POST.get('msg'))
+            deletedMessage = Message.objects.filter(msg=request.POST.get('msg'), display=True)[0]
             deletedMessage.display = False
             deletedMessage.save()
             state = "Message Deleted"

@@ -21,7 +21,7 @@
             {% csrf_token %}
             <p>{{ form.non_field_errors }}</p>
             <p>{{form.msg.label_tag}} {{ form.msg }}</p>
-            
+            <p>{{form.encrypt.label_tag}} {{form.encrypt}}</p> 
             <p>{{form.receiver.label_tag}} {{ form.receiver }}</p>
             <input type="submit" value="Send" />
             <p><a href="{% url 'home' %}">Home</a></p>

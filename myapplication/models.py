@@ -30,4 +30,5 @@ class Message(models.Model):
     receiver = models.ForeignKey(User, related_name="receiver")
     msg = models.CharField(max_length=500)
     display = models.BooleanField(default=True)
+    encrypt = models.BooleanField(default=False)
     

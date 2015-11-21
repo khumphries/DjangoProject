@@ -18,4 +18,5 @@ class GroupsForm(forms.Form):
 class MessageForm(forms.Form):
 	msg = forms.CharField(label="Message", max_length=500)
 	receiver = forms.CharField(label="Recipient", max_length=30)
+	encrypt = forms.BooleanField(label="Encrypt Message", initial=False, required=False)
 
