@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Home</title>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <style>
+            body{
+            font-family:Arial,Helvetica,sans-serif;
+            font-size: 12px;
+            }
+        </style>
+        <p style="font-size:20px">Welcome to sitemanager page.</p>
+
+    </head>
+    <body>
+        <p><a href="{% url 'Site_manager_users' %}">Users</a></p>
+        <p><a href="{% url 'Site_manager_groups' %}">Groups</a></p>
+        <p><a href="{% url 'home' %}">Home</a></p>
+        <p><a href="{% url 'logout' %}">Logout</a></p>
+        
+
+
+    </body>
+</html>

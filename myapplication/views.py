@@ -18,7 +18,12 @@ from myapplication.forms import UserForm
 from myapplication.forms import MessageForm
 from myapplication.forms import CLIForm
 from myapplication.forms import GroupsForm
+<<<<<<< HEAD
 from myapplication.forms import ReportForm
+=======
+from myapplication.forms import SiteManagerUserForm
+from myapplication.forms import SiteManagerGroupForm
+>>>>>>> c617d4432b5e8c8991d28c38bcd9c97a39ead94f
 
 from myapplication.shell import shell
 from myapplication.shell import get_home_dct_from_user
@@ -107,7 +112,6 @@ def groups_list(request):
     if request.user.is_authenticated():
 
         groups = request.user.groups.values_list('name',flat=True)
-        print(groups)
         return render_to_response('myapplication/groups.html', {'groups' : groups}, context_instance=RequestContext(request))
     else :
         return render(request, 'myapplication/auth.html')
@@ -181,7 +185,6 @@ def sign_up(request):
                 return HttpResponseRedirect(reverse('myapplication.views.sign_up_complete'))
         else :
             state = 'Please fill out all fields.'
-            return HttpResponseRedirect(reverse('myapplication.views.groups_creator'))
     else:
         form = UserForm()
 
@@ -216,9 +219,110 @@ def login_user(request):
 
 def home_page(request):
     if request.user.is_authenticated():
-        return render(request, 'myapplication/home.html')
+        SM = request.user.groups.filter(name='Site_Managers').exists()
+        return render_to_response('myapplication/home.html', {'SM':SM})
     else:
         return render(request, 'myapplication/auth.html')
+def site_manager(request):
+    if request.user.is_authenticated():
+        if is_SM:
+            return render(request, 'myapplication/Site_manager.html')
+        else:
+            return render(request, 'myapplication/home.html')
+    return render(request, 'myapplication/auth.html')
+def site_manager_groups(request):
+    if request.user.is_authenticated():
+        State = 'Enter the Group you want to affect and pick an action, Username is only necessary for adding and removing.'
+        if is_SM(request):
+            if request.method == 'POST':
+                Form = SiteManagerGroupForm(request.POST)
+                if Form.is_valid():
+                    if Form.cleaned_data['choice_field'] == '1':
+                        if Group.objects.filter(name=Form.cleaned_data['groupname']).exists():
+                            State = 'Group with that name already exists.'
+                        else :
+                            new_group = Group.objects.create(name=Form.cleaned_data['groupname'])
+                            new_group.save()
+                            State = 'Group successfully created.'
+                    else:
+                        if Form.cleaned_data['username'] == '':
+                            State = 'Please enter the name of the user you want to add or remove.'
+                        else :
+                            if Group.objects.filter(name=Form.cleaned_data['groupname']).exists():
+                                old_group = Group.objects.get(name=Form.cleaned_data['groupname'])
+                                if User.objects.filter(username=Form.cleaned_data['username']).exists():
+                                    user = User.objects.get(username=Form.cleaned_data['username'])
+                                    if Form.cleaned_data['choice_field']== '2':
+                                        if user.groups.filter(name=Form.cleaned_data['groupname']).exists():
+                                            State = 'That user is already in the group.'
+                                        else :
+                                            user.groups.add(old_group)
+                                            old_group.save()
+                                            user.save()
+                                            State = 'User successfully added.'
+                                    else :
+                                        if user.groups.filter(name=Form.cleaned_data['groupname']).exists():
+                                            user.groups.remove(old_group)
+                                            old_group.save()
+                                            user.save()
+                                            State = 'User successfully removed.'
+                                        else :
+                                            State = 'That user is not in that group.'
+                                else :
+                                    State = 'That user does not exist.'
+                            else :
+                                State = 'That Group does not exist.'
+                else:
+                    State = 'Please make sure that the groupname box was filled and an action was selcted.'
+            else:
+                Form = SiteManagerGroupForm()     
+            return render (request, 'myapplication/Site_manager_groups.html', {'State':State, 'Form':Form})
+        else :
+            return render(request, 'myapplication/home.html')
+    else:
+        return render(request, 'myapplication/auth.html')    
+
+def site_manager_users(request):
+    if request.user.is_authenticated():
+        State = 'Please input the name of the user and check the box of the action you want to do.'
+        if is_SM(request):
+            if request.method == 'POST':
+                Form = SiteManagerUserForm(request.POST)
+                if Form.is_valid():
+                    if User.objects.filter(username=Form.cleaned_data['username']).exists():
+                        user = User.objects.get(username=Form.cleaned_data['username'])
+                        if Form.cleaned_data['choice_field'] == '1':
+                            site_manager_group = Group.objects.get(name='Site_Managers')
+                            user.groups.add(site_manager_group)
+                            user.save()
+                            site_manager_group.save()
+                            State = 'User given Site Manager priveleges.'
+                        elif Form.cleaned_data['choice_field'] == '3':
+                            if user.is_active == False:
+                                State = 'User was reactivated.'
+                                user.is_active = True
+                                user.save()
+                            else:
+                                State = 'User was already active.'
+                        else :
+                            if user.is_active == True:
+                                user.is_active = False
+                                user.save()
+                                State = 'User was suspended.'
+                            else :
+                                State = 'User is already inactive.'
+                    else :
+                        State = 'That user does not exist.'
+                else :
+                    State = 'Please fill out all the fields.'
+            else :
+                Form = SiteManagerUserForm()
+            return render(request, 'myapplication/Site_manager_users.html', {'State':State, 'Form':Form})
+        else :
+            return render(request, 'myapplication/home.html')
+    else:
+        return render(request, 'myapplication/auth.html')
+
 def logout_user(request):
     if request.user.is_authenticated():
         auth.logout(request)
@@ -298,6 +402,7 @@ def outbox(request):
     else:
         return render(request, 'myapplication/auth.html')
 
-
-
+#Returns true if user is Site-Manager
+def is_SM(request):
+    return request.user.groups.filter(name='Site_Managers').exists()
 # Create your views here.
