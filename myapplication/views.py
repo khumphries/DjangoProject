@@ -18,12 +18,10 @@ from myapplication.forms import UserForm
 from myapplication.forms import MessageForm
 from myapplication.forms import CLIForm
 from myapplication.forms import GroupsForm
-<<<<<<< HEAD
 from myapplication.forms import ReportForm
-=======
+
 from myapplication.forms import SiteManagerUserForm
 from myapplication.forms import SiteManagerGroupForm
->>>>>>> c617d4432b5e8c8991d28c38bcd9c97a39ead94f
 
 from myapplication.shell import shell
 from myapplication.shell import get_home_dct_from_user
