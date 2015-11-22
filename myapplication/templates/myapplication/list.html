@@ -17,7 +17,10 @@
         <p>Documents in {{dctCurr.stName}}:</p>
         <ul>
         {% for document in documents %}
-            <li><a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a></li>
+            <li>
+                <a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a>
+                <br> {{document.docfile.}}
+            </li>
         {% endfor %}
         </ul>
     {% endif %}
@@ -42,18 +45,9 @@
 	    <p>{{stErr}}<p>
 	{% endif %}
 
-        <!-- Upload form. Note enctype attribute! -->
-        <form action="{% url 'list' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <p>{{ docform.non_field_errors }}</p>
-            <p>{{ docform.docfile.label_tag }} {{ docform.docfile.help_text }}</p>
-            <p>
-                {{ docform.docfile.errors }}
-                {{ docform.docfile }}
-            </p>
-            <p><input type="submit" value="Upload" /></p>
-            <p><a href="{% url 'home' %}">Home</a></p>
-            <p><a href="{% url 'logout' %}">Logout</a></p>
-        </form>
+    <p><a href="{% url 'create_report' %}">Create a Report</a></p>
+    <p><a href="{% url 'home' %}">Home</a></p>
+    <p><a href="{% url 'logout' %}">Logout</a></p>
+
     </body>
 </html>

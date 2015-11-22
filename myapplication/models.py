@@ -24,6 +24,14 @@ class Document(models.Model):
     docfile = models.FileField(upload_to='documents/%Y/%m/%d')
     dct = models.ForeignKey(Dct, null=True)
     owner = models.ForeignKey(User, null=True)
+    #report = models.ForeignKey(Report, null=True)
+
+class Report(models.Model):
+    timeStamp = models.DateTimeField(auto_now_add=True)
+    shortDescription = models.CharField(max_length=50)
+    detailedDescription = models.CharField(max_length=500)
+    private = models.BooleanField(default=False)
+    owner = models.ForeignKey(User, null=True)
 
 class Message(models.Model):
     sender = models.ForeignKey(User, related_name="sender")

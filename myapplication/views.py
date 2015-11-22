@@ -12,11 +12,13 @@ from django.contrib import auth
 from myapplication.models import Document
 from myapplication.models import Dct
 from myapplication.models import Message
+from myapplication.models import Report
 from myapplication.forms import DocumentForm
 from myapplication.forms import UserForm
 from myapplication.forms import MessageForm
 from myapplication.forms import CLIForm
 from myapplication.forms import GroupsForm
+from myapplication.forms import ReportForm
 
 from myapplication.shell import shell
 from myapplication.shell import get_home_dct_from_user
@@ -39,31 +41,21 @@ def list(request):
         if dctCurr is None:
             dctCurr = get_home_dct_from_user(request.user)
 	   # Handle file upload
-        if request.method == 'POST':
-            if 'docfile' in request.FILES:
-                docform = DocumentForm(request.POST, request.FILES)
-                if docform.is_valid():
-                    newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, dct=dctCurr)
-                    newdoc.save()
 
-                # Redirect to the document list after POST
-                    return HttpResponseRedirect(reverse('myapplication.views.list'))
-
-            elif 'command' in request.POST:
-                cliform = CLIForm(request.POST)
-                if cliform.is_valid():
-                    rgwrd = request.POST['command'].split(' ')
-                    # parse commands
-                    res = shell(rgwrd, request, dctCurr)
-                    if isinstance(res, str):
-                        stErr = res
-                        fErrDisplay = False
-                    else:
-                        dctCurr = res
-                    return HttpResponseRedirect(reverse('myapplication.views.list'))
+        if 'command' in request.POST:
+            cliform = CLIForm(request.POST)
+            if cliform.is_valid():
+                rgwrd = request.POST['command'].split(' ')
+                # parse commands
+                res = shell(rgwrd, request, dctCurr)
+                if isinstance(res, str):
+                    stErr = res
+                    fErrDisplay = False
+                else:
+                    dctCurr = res
+                return HttpResponseRedirect(reverse('myapplication.views.list'))
            
         else:
-            docform = DocumentForm() # A empty, unbound form
             cliform = CLIForm()
 
         # Load documents for the list page
@@ -79,11 +71,37 @@ def list(request):
         # Render list page with the documents and the form
         return render_to_response(
             'myapplication/list.html',
-            {'documents': documents, 'rgdct': rgdct, 'docform': docform, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'stErr' : stErrDisplay},
+            {'documents': documents, 'rgdct': rgdct, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'stErr' : stErrDisplay},
             context_instance=RequestContext(request)
         )
     else:
         return render(request, 'myapplication/auth.html')
+
+def create_report(request):
+    if request.user.is_authenticated():
+        dctCurr = get_home_dct_from_user(request.user)
+        if request.method == 'POST':
+            reportform = ReportForm(request.POST)
+            if reportform.is_valid():
+                newreport = Report(shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user)
+            docform = DocumentForm(request.POST, request.FILES)
+            if docform.is_valid():
+                newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, dct=dctCurr)
+                newdoc.save()
+
+        else:
+            docform = DocumentForm() # A empty, unbound form
+            reportform = ReportForm()
+            #return HttpResponseRedirect(reverse('myapplication.views.create_report'))
+
+        return render_to_response(
+            'myapplication/create_report.html',
+            {'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'docform' : docform, 'reportform' : reportform},
+            context_instance=RequestContext(request)
+        )
+    else:
+        return render(request, 'myapplication/auth.html')
+
 
 def groups_list(request):
     if request.user.is_authenticated():
