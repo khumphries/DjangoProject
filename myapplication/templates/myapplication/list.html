@@ -23,18 +23,13 @@
                 Date Created: {{report.timeStamp}}<br>
                 Private: {{report.private}}<br>
                 <br>
-            </li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-
-    <!-- List of uploaded documents -->
-    {% if documents %}
-        <p>Documents:</p>
-        <ul>
-        {% for document in documents %}
-            <li>
-                <a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a>
+            <form action="{% url 'view_report' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="shortDescription" value="{{ report.shortDescription }}" />
+                <input type="hidden" name="dateCreated" value="{{ report.timeStamp }}" />
+                <input type="submit" value="View Files in Report" />
+            </form>
+            <br><br>
             </li>
         {% endfor %}
         </ul>

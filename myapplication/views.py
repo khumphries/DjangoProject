@@ -108,6 +108,19 @@ def create_report(request):
     else:
         return render(request, 'myapplication/auth.html')
 
+def view_report(request):
+    if request.user.is_authenticated():
+        if request.method == 'POST':
+            report = Report.objects.filter(shortDescription=(request.POST.get('shortDescription')))[0]
+            documents = Document.objects.filter(report=report)
+            
+            return render_to_response(
+            'myapplication/view_report.html',
+            {'report':report, 'documents':documents},
+            context_instance=RequestContext(request)
+            )
+    else:
+        return render(request, 'myapplication/auth.html')
 
 def groups_list(request):
     if request.user.is_authenticated():
