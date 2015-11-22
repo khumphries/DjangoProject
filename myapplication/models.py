@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-
+from datetime import datetime
 # Hungarian tags for models:
 # dct - a directory
 
@@ -28,6 +28,9 @@ class Document(models.Model):
 class Message(models.Model):
     sender = models.ForeignKey(User, related_name="sender")
     receiver = models.ForeignKey(User, related_name="receiver")
+    subject = models.CharField(max_length=50, default="subject")
     msg = models.CharField(max_length=500)
+    sentDate = models.DateTimeField(auto_now_add=True)
     display = models.BooleanField(default=True)
+    encrypt = models.BooleanField(default=False)
     

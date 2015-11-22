@@ -16,14 +16,21 @@
     {% if messages %}
         <ul>
         {% for message in messages %}
-            <li>{{ message.msg }} ---from {{message.sender.username}}</li>
+        <li>
+            Subject: {{ message.subject }}<br>
+            From: {{message.sender.username}}<br>
+            Date Sent: {{message.sentDate}}<br><br>
+            Message: {{message.msg}} 
+            <br>
             <form action="{% url 'inbox' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="receiver" value="{{ message.receiver }}" />
                 <input type="hidden" name="sender" value="{{ message.sender }}" />
                 <input type="hidden" name="msg" value="{{ message.msg }}" />
-                <input type="submit" value="Delete" />
+                <input type="submit" value="Delete Message" />
             </form>
+            <br><br>
+        </li>
         {% endfor %}
         </ul>
     {% else %}

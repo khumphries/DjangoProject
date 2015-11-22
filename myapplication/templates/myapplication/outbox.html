@@ -16,7 +16,13 @@
     {% if messages %}
         <ul>
         {% for message in messages %}
-            <li>{{ message.msg }} ---to {{message.receiver.username}}</li>
+        <li>
+            Subject: {{ message.subject }}<br>
+            To: {{message.receiver.username}}<br>
+            Date Sent: {{message.sentDate}}<br><br>
+            Message: {{message.msg}} 
+            <br><br>
+        </li>
         {% endfor %}
         </ul>
     {% else %}

@@ -16,8 +16,10 @@ class GroupsForm(forms.Form):
     username = forms.CharField(label='User Name', max_length=30)
 
 class MessageForm(forms.Form):
+	subject = forms.CharField(label="Subject", max_length=50)
 	msg = forms.CharField(label="Message", max_length=500)
 	receiver = forms.CharField(label="Recipient", max_length=30)
+	encrypt = forms.BooleanField(label="Encrypt Message", initial=False, required=False)
 
 class SiteManagerUserForm(forms.Form):
     username = forms.CharField(label='User Name', max_length=30)
