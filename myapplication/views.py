@@ -62,7 +62,8 @@ def list(request):
             cliform = CLIForm()
 
         # Load documents for the list page
-        documents = Document.objects.filter(dct=dctCurr)
+        reports = Report.objects.filter(dct=dctCurr)
+        documents = Document.objects.all()
         rgdct = Dct.objects.filter(dctParent=dctCurr)
 
         stErrDisplay = None
@@ -74,7 +75,7 @@ def list(request):
         # Render list page with the documents and the form
         return render_to_response(
             'myapplication/list.html',
-            {'documents': documents, 'rgdct': rgdct, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'stErr' : stErrDisplay},
+            {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'stErr' : stErrDisplay},
             context_instance=RequestContext(request)
         )
     else:
@@ -86,11 +87,13 @@ def create_report(request):
         if request.method == 'POST':
             reportform = ReportForm(request.POST)
             if reportform.is_valid():
-                newreport = Report(shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user)
-            docform = DocumentForm(request.POST, request.FILES)
-            if docform.is_valid():
-                newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, dct=dctCurr)
-                newdoc.save()
+                newreport = Report(shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user, dct=dctCurr)
+                newreport.save()
+                docform = DocumentForm(request.POST, request.FILES)
+                if docform.is_valid():
+                    newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, report=newreport)
+                    newdoc.save()
+                    return HttpResponseRedirect(reverse('myapplication.views.list'))
 
         else:
             docform = DocumentForm() # A empty, unbound form

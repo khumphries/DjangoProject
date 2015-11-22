@@ -12,14 +12,29 @@
     </head>
     <body>
       <p>Current directory: {{path}}</p>
+
+    {% if reports %}
+        <p>Reports in {{dctCurr.stName}}:</p>
+        <ul>
+        {% for report in reports %}
+            <li>
+                Short Description: {{report.shortDescription}}<br>
+                Detailed Description: {{report.detailedDescription}}<br>
+                Date Created: {{report.timeStamp}}<br>
+                Private: {{report.private}}<br>
+                <br>
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
     <!-- List of uploaded documents -->
     {% if documents %}
-        <p>Documents in {{dctCurr.stName}}:</p>
+        <p>Documents:</p>
         <ul>
         {% for document in documents %}
             <li>
                 <a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a>
-                <br> {{document.docfile.}}
             </li>
         {% endfor %}
         </ul>
