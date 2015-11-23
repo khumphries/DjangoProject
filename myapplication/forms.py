@@ -4,6 +4,12 @@ from .models import Message
 class DocumentForm(forms.Form):
 	docfile = forms.FileField(label='Select a file', help_text='max. 42 megabytes')
 
+class ReportForm(forms.Form):
+	shortDescription = forms.CharField(label='Short Description', max_length=50)
+	detailedDescription = forms.CharField(label='Detailed Description', max_length=500)
+	private = forms.BooleanField(label='Private', initial=False, required=False, help_text='Check to make the report private')
+
+
 class CLIForm(forms.Form):
 	command = forms.CharField(label='Command', max_length=100, help_text='use standard UNIX file manipulation commands')
 

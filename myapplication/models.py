@@ -20,10 +20,18 @@ class Dct(models.Model):
     stName = models.CharField(validators=[validate_dct_stName], max_length=80) # TODO: MK: why 80? No idea
     owner = models.ForeignKey(User, null=True)
 
-class Document(models.Model):
-    docfile = models.FileField(upload_to='documents/%Y/%m/%d')
+class Report(models.Model):
+    timeStamp = models.DateTimeField(auto_now_add=True)
+    shortDescription = models.CharField(max_length=50)
+    detailedDescription = models.CharField(max_length=500)
+    private = models.BooleanField(default=False)
     dct = models.ForeignKey(Dct, null=True)
     owner = models.ForeignKey(User, null=True)
+
+class Document(models.Model):
+    docfile = models.FileField(upload_to='documents/%Y/%m/%d')
+    owner = models.ForeignKey(User, null=True)
+    report = models.ForeignKey(Report, null=True)
 
 class Message(models.Model):
     sender = models.ForeignKey(User, related_name="sender")

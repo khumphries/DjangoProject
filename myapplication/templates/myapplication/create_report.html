@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{dctCurr.stName}}</title>  
+        <style>
+            body{
+            font-family:Arial,Helvetica,sans-serif;
+            font-size: 12px;
+            }
+        </style> 
+    </head>
+    <body>
+        <!-- Upload form. Note enctype attribute! -->
+        <form action="{% url 'create_report' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>{{ reportform.shortDescription.label_tag}} {{reportform.shortDescription}}</p>
+            <p>{{ reportform.detailedDescription.label_tag}} {{reportform.detailedDescription}}</p>
+            <p>{{ reportform.private.label_tag}} {{reportform.private}} {{reportform.private.help_text}}</p>
+            <br>
+            Upload File(s)
+            <p>{{ docform.non_field_errors }}</p>
+            <p>{{ docform.docfile.label_tag }} {{ docform.docfile.help_text }}</p>
+            <p>
+                {{ docform.docfile.errors }}
+                {{ docform.docfile }}
+            </p>
+            <br>
+            <input type="submit" value="Create Report" />
+
+        <p><a href="{% url 'home' %}">Home</a></p>
+        <p><a href="{% url 'logout' %}">Logout</a></p>
+
+    </body>
+</html>
