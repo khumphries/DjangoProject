@@ -85,7 +85,7 @@ def create_report(request):
     if request.user.is_authenticated():
         dctCurr = get_home_dct_from_user(request.user)
         if request.method == 'POST':
-            reportform = ReportForm(request.POST)
+            reportform = ReportForm(request.POST, user=request.user)
             if reportform.is_valid():
                 newreport = Report(shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user, dct=dctCurr)
                 newreport.save()
@@ -97,7 +97,7 @@ def create_report(request):
 
         else:
             docform = DocumentForm() # A empty, unbound form
-            reportform = ReportForm()
+            reportform = ReportForm(user=request.user)
             #return HttpResponseRedirect(reverse('myapplication.views.create_report'))
 
         return render_to_response(
