@@ -41,7 +41,11 @@ def list(request):
     global stErr
 
     if request.user.is_authenticated():
+<<<<<<< HEAD
         SM = request.user.groups.filter(name='Site_Managers').exists()        
+=======
+        SM = request.user.groups.filter(name='Site_Managers').exists()
+>>>>>>> 8661ebda7e88b80619d868606364562a4c2219c8
         if dctCurr is None:
             print(request.user.username)
             dctCurr = get_home_dct_from_user(request.user)
@@ -84,6 +88,7 @@ def list(request):
         return render(request, 'myapplication/auth.html')
 
 def create_report(request):
+    SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.user.is_authenticated():
         dctCurr = get_home_dct_from_user(request.user)
         if request.method == 'POST':
@@ -113,7 +118,7 @@ def create_report(request):
 
         return render_to_response(
             'myapplication/create_report.html',
-            {'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'docform' : docform, 'reportform' : reportform},
+            {'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'docform' : docform, 'reportform' : reportform,'SM':SM},
             context_instance=RequestContext(request)
         )
     else:
@@ -137,10 +142,10 @@ def view_report(request):
         if request.method == 'POST':
             report = Report.objects.filter(shortDescription=(request.POST.get('shortDescription')))[0]
             documents = Document.objects.filter(report=report)
-            
+            SM = request.user.groups.filter(name='Site_Managers').exists()
             return render_to_response(
             'myapplication/view_report.html',
-            {'report':report, 'documents':documents},
+            {'report':report, 'documents':documents, 'SM':SM},
             context_instance=RequestContext(request)
             )
     else:
@@ -148,9 +153,9 @@ def view_report(request):
 
 def groups_list(request):
     if request.user.is_authenticated():
-
         groups = request.user.groups.values_list('name',flat=True)
-        return render_to_response('myapplication/groups.html', {'groups' : groups}, context_instance=RequestContext(request))
+        SM = request.user.groups.filter(name='Site_Managers').exists()
+        return render_to_response('myapplication/groups.html', {'groups' : groups,'SM':SM}, context_instance=RequestContext(request))
     else :
         return render(request, 'myapplication/auth.html')
 
@@ -197,9 +202,8 @@ def groups_creator(request):
         else :
             form = GroupsForm()
             
-
-
-        return render(request,'myapplication/groups_creator.html', {'form' : form, 'state' : state})
+       	SM = request.user.groups.filter(name='Site_Managers').exists()
+        return render(request,'myapplication/groups_creator.html', {'form' : form, 'state' : state,'SM':SM})
     else :
         return render(request, 'myapplication/auth.html')        
 
@@ -228,20 +232,22 @@ def sign_up(request):
             state = 'Please fill out all fields.'
     else:
         form = UserForm()
+    SM = request.user.groups.filter(name='Site_Managers').exists()
 
-    return render(request,'myapplication/sign_up.html', {'form' : form, 'state' : state})
+    return render(request,'myapplication/sign_up.html', {'form' : form, 'state' : state,'SM':SM})
 #For page after sign up
 def sign_up_complete(request):
+    SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.user.is_authenticated():
-        return render(request, 'myapplication/sign_up_complete.html')
+        return render(request, 'myapplication/sign_up_complete.html', {'SM':SM})
     else:
         return render(request, 'myapplication/auth.html')
 
 def login_user(request):
     state = "Please log in below..."
     username = password = ''
+    SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.method == 'POST':
-
         username = request.POST.get('username')
         password = request.POST.get('password')
 
@@ -256,7 +262,7 @@ def login_user(request):
         else:
             state = "Your username and/or password were incorrect."
 
-    return render_to_response('myapplication/auth.html', RequestContext(request, {'state':state, 'username': username}))
+    return render_to_response('myapplication/auth.html', RequestContext(request, {'state':state, 'username': username,'SM':SM}))
 
 def home_page(request):
     if request.user.is_authenticated():
@@ -265,13 +271,15 @@ def home_page(request):
     else:
         return render(request, 'myapplication/auth.html')
 def site_manager(request):
+    SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.user.is_authenticated():
         if is_SM:
-            return render(request, 'myapplication/Site_manager.html')
+            return render(request, 'myapplication/Site_manager.html',{'SM':SM})
         else:
-            return render(request, 'myapplication/home.html')
+            return render(request, 'myapplication/home.html',{'SM':SM})
     return render(request, 'myapplication/auth.html')
 def site_manager_groups(request):
+    SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.user.is_authenticated():
         State = 'Enter the Group you want to affect and pick an action, Username is only necessary for adding and removing.'
         if is_SM(request):
@@ -317,13 +325,14 @@ def site_manager_groups(request):
                     State = 'Please make sure that the groupname box was filled and an action was selcted.'
             else:
                 Form = SiteManagerGroupForm()     
-            return render (request, 'myapplication/Site_manager_groups.html', {'State':State, 'Form':Form})
+            return render (request, 'myapplication/Site_manager_groups.html', {'State':State, 'Form':Form,'SM':SM})
         else :
-            return render(request, 'myapplication/home.html')
+            return render(request, 'myapplication/home.html', {'SM':SM})
     else:
         return render(request, 'myapplication/auth.html')    
 
 def site_manager_users(request):
+    SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.user.is_authenticated():
         State = 'Please input the name of the user and check the box of the action you want to do.'
         if is_SM(request):
@@ -358,20 +367,22 @@ def site_manager_users(request):
                     State = 'Please fill out all the fields.'
             else :
                 Form = SiteManagerUserForm()
-            return render(request, 'myapplication/Site_manager_users.html', {'State':State, 'Form':Form})
+            return render(request, 'myapplication/Site_manager_users.html', {'State':State, 'Form':Form, 'SM':SM})
         else :
-            return render(request, 'myapplication/home.html')
+            return render(request, 'myapplication/home.html', {'SM':SM})
     else:
         return render(request, 'myapplication/auth.html')
 
 def logout_user(request):
+    SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.user.is_authenticated():
         auth.logout(request)
-        return render(request, 'myapplication/loggedout.html')
+        return render(request, 'myapplication/loggedout.html', {'SM':SM})
     else:
         return render(request, 'myapplication/auth.html')
 
 def messages(request):
+    SM = request.user.groups.filter(name='Site_Managers').exists()
     state = "Enter message and recipients username below"
     if request.user.is_authenticated():
        # Handle file upload
@@ -398,7 +409,7 @@ def messages(request):
         # Render messages page with the messages, state, and form
         return render_to_response(
             'myapplication/messages.html',
-            {'messages': messages, 'form': form, 'state':state},
+            {'messages': messages, 'form': form, 'state':state,'SM':SM},
             context_instance=RequestContext(request)
         )
     else:
@@ -406,6 +417,7 @@ def messages(request):
 
 
 def inbox(request):
+    SM = request.user.groups.filter(name='Site_Managers').exists()
     state = ""
     if request.user.is_authenticated():
         messages = Message.objects.filter(receiver=request.user, display=True).order_by('-sentDate')
@@ -423,21 +435,21 @@ def inbox(request):
         # Render inbox page with the messages
         return render_to_response(
             'myapplication/inbox.html',
-            {'messages': messages, 'state':state},
+            {'messages': messages, 'state':state,'SM':SM},
             context_instance=RequestContext(request)
         )
     else:
         return render(request, 'myapplication/auth.html')
 
 def outbox(request):
-    
+    SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.user.is_authenticated():
         messages = Message.objects.filter(sender=request.user).order_by('-sentDate')
 
         # Render outbox page with the messages
         return render_to_response(
             'myapplication/outbox.html',
-            {'messages': messages},
+            {'messages': messages,'SM':SM},
             context_instance=RequestContext(request)
         )
     else:
@@ -454,3 +466,59 @@ def get_all_available_reports(request):
 def is_SM(request):
     return request.user.groups.filter(name='Site_Managers').exists()
 # Create your views here.
+
+def post_request(request):
+    global dctCurr
+    global fErrDisplayed
+    global stErr
+    SM = request.user.groups.filter(name='Site_Managers').exists()    
+    if dctCurr is None:
+        dctCurr = get_home_dct_from_user(request.user)
+   # Handle file upload
+
+    if 'command' in request.POST:
+        cliform = CLIForm(request.POST)
+        if cliform.is_valid():
+            rgwrd = request.POST['command'].split(' ')
+            # parse commands
+            res = shell(rgwrd, request, dctCurr)
+            if isinstance(res, str):
+                stErr = res
+                fErrDisplay = False
+            else:
+                dctCurr = res
+            return HttpResponseRedirect(reverse('myapplication.views.list'))
+       
+    else:
+        cliform = CLIForm()
+
+    # Load documents for the list page
+    reports = Report.objects.filter(dct=dctCurr)
+    documents = Document.objects.all()
+    rgdct = Dct.objects.filter(dctParent=dctCurr)
+
+    stErrDisplay = None
+
+    if not stErr == "" and not fErrDisplayed:
+        stErrDisplay = stErr
+        fErrDisplayed = True
+    # Render list page with the documents and the form
+    return render_to_response(
+        'myapplication/post_request.html',
+        {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'stErr' : stErrDisplay,'SM':SM},
+        context_instance=RequestContext(request)
+    )
+
+
+
+    # # Load documents for the list page
+    # reports = Report.objects.filter(dct=dctCurr)
+    # documents = Document.objects.all()
+    # rgdct = Dct.objects.filter(dctParent=dctCurr)
+
+    # # Render list page with the documents and the form
+    # return render_to_response(
+    #     'myapplication/post_request.html',
+    #     {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr)},
+    #     context_instance=RequestContext(request)
+    # )
