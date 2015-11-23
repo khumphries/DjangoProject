@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<link rel="stylesheet" href="https://bootswatch.com/cyborg/bootstrap.css" media="screen">
+<link rel="stylesheet" href="https://bootswatch.com/cyborg/bootstrap.min.css">
+
 <html>
     <head>
         <meta charset="utf-8">
@@ -11,7 +14,48 @@
         </style> 
     </head>
     <body>
+        <body>
+        <div class="navbar navbar-default navbar-fixed-top">
+          <div class="container">
+            <div class="navbar-header">
+              <a href="{% url 'home' %}" class="navbar-brand">Secure Witness Share</a>
+              <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+            </div>
+            <div class="navbar-collapse collapse" id="navbar-main">
+              <ul class="nav navbar-nav">
+                <li>
+                  <a href="{% url 'list' %}">Files</a>
+                </li>
+                <li>
+                  <a href="{% url 'messages' %}">Messages</a>
+                </li>
+                <li>
+                  <a href="{% url 'groups_creator' %}">Groups</a>
+                </li>
+                <li>
+                  <a href="{% url 'groups' %}">Groups List</a>
+                </li>
+                {%if SM %}
+                    <li>
+                      <a href="{% url 'Site_manager' %}">Site Manager</a>
+                    </li>
+                {%endif%}
+              </ul>
+
+              <ul class="nav navbar-nav navbar-right">
+                <li><a href="{% url 'logout' %}" target="_blank">Logout</a></li>
+              </ul>
+
+            </div>
+          </div>
+        </div>
         <!-- Upload form. Note enctype attribute! -->
+        <br></br>
+        <br></br>
         <form action="{% url 'create_report' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <p>{{ reportform.shortDescription.label_tag}} {{reportform.shortDescription}}</p>

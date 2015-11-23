@@ -3,15 +3,19 @@
 <head>
 <title>Log in</title>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="https://bootswatch.com/cyborg/bootstrap.css" media="screen">
+<link rel="stylesheet" href="https://bootswatch.com/cyborg/bootstrap.min.css">
 <style>
 body{
 	font-family:Arial,Helvetica,sans-serif;
 	font-size: 12px;
 }
+
+
 </style>
 </head>
 <body>
-	<p>Please login for access to the other webpages.</p>
+	<br>Please login for access to the other webpages.</br>
 	{{ state }}
 	<form action="{% url 'login' %}" method="post">
 		{% csrf_token %}	
@@ -25,5 +29,11 @@ body{
 
 		<input type="submit" value="Log In" />
 	</form>
+	<form action="/your-name/" method="post">
+    	<label for="your_name">Your name: </label>
+    	<input id="your_name" type="text" name="your_name" value="{{ current_name }}">
+    	<input type="submit" value="OK">
+	</form>
+	
 </body>
 </html>

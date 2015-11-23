@@ -12,9 +12,9 @@ argv = []
 def reports():
     # query reports
     print("Reports: ")
-    r = requests.get("http://httpbin.org/get", params = {"key":"value"})
+    r = requests.get("http://127.0.0.1:8000/list/", params = {})
 
-    print (r.json())
+    print (r.text)
 
 def encrypt():
     # encrypt file
