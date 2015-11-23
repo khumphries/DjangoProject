@@ -13,7 +13,7 @@
         </style> 
     </head>
     <body>
-                <div class="navbar navbar-default navbar-fixed-top">
+        <div class="navbar navbar-default navbar-fixed-top">
           <div class="container">
             <div class="navbar-header">
               <a href="{% url 'home' %}" class="navbar-brand">Secure Witness Share</a>
@@ -66,51 +66,51 @@
         </br>
       <p>Current directory: {{path}}</p>
 
-    {% if reports %}
-        <p>Reports in {{dctCurr.stName}}:</p>
-        <ul>
-        {% for report in reports %}
-            <li>
-                Short Description: {{report.shortDescription}}<br>
-                Detailed Description: {{report.detailedDescription}}<br>
-                Date Created: {{report.timeStamp}}<br>
-                Private: {{report.private}}<br>
-                <br>
-            <form action="{% url 'view_report' %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="shortDescription" value="{{ report.shortDescription }}" />
-                <input type="hidden" name="dateCreated" value="{{ report.timeStamp }}" />
-                <input type="submit" value="View Files in Report" />
-            </form>
-            <br><br>
-            </li>
-        {% endfor %}
-        </ul>
-    {% endif %}
+        {% if reports %}
+            <p>Reports in {{dctCurr.stName}}:</p>
+            <ul>
+            {% for report in reports %}
+                <li>
+                    Short Description: {{report.shortDescription}}<br>
+                    Detailed Description: {{report.detailedDescription}}<br>
+                    Date Created: {{report.timeStamp}}<br>
+                    Private: {{report.private}}<br>
+                    <br>
+                <form action="{% url 'view_report' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="shortDescription" value="{{ report.shortDescription }}" />
+                    <input type="hidden" name="dateCreated" value="{{ report.timeStamp }}" />
+                    <input type="submit" value="View Files in Report" />
+                </form>
+                <br><br>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
 
-    {% if rgdct %}
-	<p>Directories in {{dctCurr.stName}}:</p>
-        <ul>
-        {% for dct in rgdct %}
-            <p>{{dct.stName}}</p>
-        {% endfor %}
-        </ul>
-    {% endif %}
-    
-	<!-- cli form for directory manipulation -->
-	<form action="{% url 'list' %}" method="post">
-    	  {% csrf_token %}
-    	  <p>{{cliform.command.label_tag}} {{ cliform.command }}</p>
-	  <p>{{cliform.command.help_text}}</p>
-	</form>
+        {% if rgdct %}
+    	<p>Directories in {{dctCurr.stName}}:</p>
+            <ul>
+            {% for dct in rgdct %}
+                <p>{{dct.stName}}</p>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        
+    	<!-- cli form for directory manipulation -->
+    	<form action="{% url 'list' %}" method="post">
+        	  {% csrf_token %}
+        	  <p>{{cliform.command.label_tag}} {{ cliform.command }}</p>
+    	  <p>{{cliform.command.help_text}}</p>
+    	</form>
 
-	{% if stErr %}
-	    <p>{{stErr}}<p>
-	{% endif %}
+    	{% if stErr %}
+    	    <p>{{stErr}}<p>
+    	{% endif %}
 
-    <p><a href="{% url 'create_report' %}">Create a Report</a></p>
-    <p><a href="{% url 'home' %}">Home</a></p>
-    <p><a href="{% url 'logout' %}">Logout</a></p>
+        <p><a href="{% url 'create_report' %}">Create a Report</a></p>
+        <p><a href="{% url 'home' %}">Home</a></p>
+        <p><a href="{% url 'logout' %}">Logout</a></p>
 
     </body>
 </html>

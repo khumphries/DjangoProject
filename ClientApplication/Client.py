@@ -12,8 +12,7 @@ argv = []
 def reports():
     # query reports
     print("Reports: ")
-    r = requests.get("http://127.0.0.1:8000/list/", params = {})
-
+    r = requests.get("http://127.0.0.1:8000/post_request/", params = {})
     print (r.text)
 
 def encrypt():

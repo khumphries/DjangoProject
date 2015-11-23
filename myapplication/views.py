@@ -420,3 +420,59 @@ def outbox(request):
 def is_SM(request):
     return request.user.groups.filter(name='Site_Managers').exists()
 # Create your views here.
+
+def post_request(request):
+    global dctCurr
+    global fErrDisplayed
+    global stErr
+        
+    if dctCurr is None:
+        dctCurr = get_home_dct_from_user(request.user)
+   # Handle file upload
+
+    if 'command' in request.POST:
+        cliform = CLIForm(request.POST)
+        if cliform.is_valid():
+            rgwrd = request.POST['command'].split(' ')
+            # parse commands
+            res = shell(rgwrd, request, dctCurr)
+            if isinstance(res, str):
+                stErr = res
+                fErrDisplay = False
+            else:
+                dctCurr = res
+            return HttpResponseRedirect(reverse('myapplication.views.list'))
+       
+    else:
+        cliform = CLIForm()
+
+    # Load documents for the list page
+    reports = Report.objects.filter(dct=dctCurr)
+    documents = Document.objects.all()
+    rgdct = Dct.objects.filter(dctParent=dctCurr)
+
+    stErrDisplay = None
+
+    if not stErr == "" and not fErrDisplayed:
+        stErrDisplay = stErr
+        fErrDisplayed = True
+    # Render list page with the documents and the form
+    return render_to_response(
+        'myapplication/post_request.html',
+        {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'stErr' : stErrDisplay},
+        context_instance=RequestContext(request)
+    )
+
+
+
+    # # Load documents for the list page
+    # reports = Report.objects.filter(dct=dctCurr)
+    # documents = Document.objects.all()
+    # rgdct = Dct.objects.filter(dctParent=dctCurr)
+
+    # # Render list page with the documents and the form
+    # return render_to_response(
+    #     'myapplication/post_request.html',
+    #     {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr)},
+    #     context_instance=RequestContext(request)
+    # )
