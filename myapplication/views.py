@@ -41,11 +41,7 @@ def list(request):
     global stErr
 
     if request.user.is_authenticated():
-<<<<<<< HEAD
         SM = request.user.groups.filter(name='Site_Managers').exists()        
-=======
-        SM = request.user.groups.filter(name='Site_Managers').exists()
->>>>>>> 8661ebda7e88b80619d868606364562a4c2219c8
         if dctCurr is None:
             print(request.user.username)
             dctCurr = get_home_dct_from_user(request.user)
