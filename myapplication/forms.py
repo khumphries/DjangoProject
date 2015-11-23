@@ -2,12 +2,23 @@ from django import forms
 from .models import Message
 
 class DocumentForm(forms.Form):
-	docfile = forms.FileField(label='Select a file', help_text='max. 42 megabytes')
+	docfile = forms.FileField(label='Select a file', help_text='max. 42 megabytes', required=False)
+
+#For dyanmically populating the list of groups one is in
+def get_my_groups(User):
+    groups = User.groups.values_list('name',flat=True)
+    groups_list = zip(groups,groups)
+    return groups_list
 
 class ReportForm(forms.Form):
-	shortDescription = forms.CharField(label='Short Description', max_length=50)
-	detailedDescription = forms.CharField(label='Detailed Description', max_length=500)
-	private = forms.BooleanField(label='Private', initial=False, required=False, help_text='Check to make the report private')
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(ReportForm, self).__init__(*args, **kwargs)
+        self.fields['shortDescription'] = forms.CharField(label='Short Description', max_length=50)
+        self.fields['detailedDescription'] = forms.CharField(label='Detailed Description', max_length=500)
+        self.fields['private'] = forms.BooleanField(label='Private', initial=False, required=False, help_text='Check to make the report private')
+        self.fields['groups_list'] = forms.ChoiceField(label='Group', required=False, help_text='Select which groups can see this report.', choices=get_my_groups(self.user))
+
 
 
 class CLIForm(forms.Form):
