@@ -13,6 +13,7 @@ from myapplication.models import Document
 from myapplication.models import Dct
 from myapplication.models import Message
 from myapplication.models import Report
+from myapplication.models import Report_Group
 from myapplication.forms import DocumentForm
 from myapplication.forms import UserForm
 from myapplication.forms import MessageForm
@@ -40,8 +41,9 @@ def list(request):
     global stErr
 
     if request.user.is_authenticated():
-        
+        SM = request.user.groups.filter(name='Site_Managers').exists()        
         if dctCurr is None:
+            print(request.user.username)
             dctCurr = get_home_dct_from_user(request.user)
 	   # Handle file upload
 
@@ -75,7 +77,7 @@ def list(request):
         # Render list page with the documents and the form
         return render_to_response(
             'myapplication/list.html',
-            {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'stErr' : stErrDisplay},
+            {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'stErr' : stErrDisplay, 'SM':SM},
             context_instance=RequestContext(request)
         )
     else:
@@ -89,6 +91,15 @@ def create_report(request):
             if reportform.is_valid():
                 newreport = Report(shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user, dct=dctCurr)
                 newreport.save()
+                #Adding code to give permissions based on group selected
+                if reportform.cleaned_data['private']:
+                    if reportform.cleaned_data['groups_list'] != 'None':
+                        new_report_group = Report_Group(group=reportform.cleaned_data['groups_list'])
+                        newreport.report_group_set.add(new_report_group)
+                        #print(newreport.groups_list)
+                else :
+                    public_report_group = Report_Group(group='public')
+                    newreport.report_group.add(public_report_group)              
                 docform = DocumentForm(request.POST, request.FILES)
                 if docform.is_valid():
                     newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, report=newreport)
@@ -107,7 +118,20 @@ def create_report(request):
         )
     else:
         return render(request, 'myapplication/auth.html')
-
+def view_all_reports(request):
+    if request.user.is_authenticated():
+        user_group_dict = dict(request.user.groups.values_list(flat=True))
+        user_group_list = []
+        for value in user_group_dict.values():
+            user_group_list.append(value)
+        all_reports = Report.objects.filter(report_group__group__in=user_group_list)
+        return render_to_response(
+            'myapplication/all_reports.html',
+            {'all_reports':all_reports},
+            context_instance=RequestContext(request)
+            )
+    else :
+        return render(request, 'myapplication/auth.html')
 def view_report(request):
     if request.user.is_authenticated():
         if request.method == 'POST':
@@ -191,6 +215,9 @@ def sign_up(request):
                 state = "That user name is already taken, please try another."
             else:
                 user = User.objects.create_user(form.cleaned_data['username'],'',form.cleaned_data['password'])
+                group = Group.objects.get(name='public')
+                user.groups.add(group)
+                group.save()
                 user.save()
                 home_dct = Dct(stName=form.cleaned_data['username'], owner=user)
                 home_dct.save()
@@ -416,6 +443,13 @@ def outbox(request):
     else:
         return render(request, 'myapplication/auth.html')
 
+
+def get_all_available_reports(request):
+    user_group_dict = dict(request.user.groups.values_list(flat=True))
+    user_group_list = []
+    for value in user_group_dict.values():
+        user_group_list.append(value)
+    all_reports = Report.objects.filter(report_group__group__in=user_group_list)
 #Returns true if user is Site-Manager
 def is_SM(request):
     return request.user.groups.filter(name='Site_Managers').exists()

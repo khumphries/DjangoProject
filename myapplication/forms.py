@@ -6,7 +6,8 @@ class DocumentForm(forms.Form):
 
 #For dyanmically populating the list of groups one is in
 def get_my_groups(User):
-    groups = User.groups.values_list('name',flat=True)
+    groups = list(User.groups.values_list('name',flat=True))
+    groups.insert(0,'None')
     groups_list = zip(groups,groups)
     return groups_list
 
@@ -17,7 +18,7 @@ class ReportForm(forms.Form):
         self.fields['shortDescription'] = forms.CharField(label='Short Description', max_length=50)
         self.fields['detailedDescription'] = forms.CharField(label='Detailed Description', max_length=500)
         self.fields['private'] = forms.BooleanField(label='Private', initial=False, required=False, help_text='Check to make the report private')
-        self.fields['groups_list'] = forms.ChoiceField(label='Group', required=False, help_text='Select which groups can see this report.', choices=get_my_groups(self.user))
+        self.fields['groups_list'] = forms.ChoiceField(label='Group', help_text='Select which groups can see this report.', choices=get_my_groups(self.user))
 
 
 

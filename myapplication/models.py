@@ -28,6 +28,11 @@ class Report(models.Model):
     dct = models.ForeignKey(Dct, null=True)
     owner = models.ForeignKey(User, null=True)
 
+class Report_Group(models.Model):
+    group = models.CharField(max_length=80)
+    report = models.ForeignKey(Report)
+
+
 class Document(models.Model):
     docfile = models.FileField(upload_to='documents/%Y/%m/%d')
     owner = models.ForeignKey(User, null=True)
