@@ -13,7 +13,7 @@
         </style> 
     </head>
     <body>
-                <div class="navbar navbar-default navbar-fixed-top">
+        <div class="navbar navbar-default navbar-fixed-top">
           <div class="container">
             <div class="navbar-header">
               <a href="{% url 'home' %}" class="navbar-brand">Secure Witness Share</a>
@@ -70,19 +70,28 @@
         <ul>
         {% for message in messages %}
         <li>
+
             Subject: {{ message.subject }}<br>
             From: {{message.sender.username}}<br>
-            Date Sent: {{message.sentDate}}<br><br>
-            Message: {{message.msg}} 
-            <br>
+            Date Sent: {{message.sentDate}}<br>
+
             <form action="{% url 'inbox' %}" method="post">
                 {% csrf_token %}
+
                 <input type="hidden" name="receiver" value="{{ message.receiver }}" />
                 <input type="hidden" name="sender" value="{{ message.sender }}" />
                 <input type="hidden" name="msg" value="{{ message.msg }}" />
-                <input type="submit" value="Delete Message" />
+
+                {% if not  message.encrypt %}
+                    Message: {{message.msg}}
+                {% else %}
+                    Message is encrypted.<br><br>
+                    <input type="submit" name = 'decrypt' value="Decrypt Message" />
+                {% endif %}   
+                <br><br>
+                <input type="submit" name = 'delete' value="Delete Message" />
             </form>
-            <br><br>
+            <br>
         </li>
         {% endfor %}
         </ul>
