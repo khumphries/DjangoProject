@@ -100,25 +100,29 @@ def create_report(request):
                         #print(newreport.groups_list)
                 else :
                     public_report_group = Report_Group(group='public')
-                    newreport.report_group.add(public_report_group)              
-                docform = DocumentForm(request.POST, request.FILES)
-                if docform.is_valid():
-                    newdoc = Document(docfile = request.FILES['docfile'], owner=request.user, report=newreport)
-                    newdoc.save()
-                    return HttpResponseRedirect(reverse('myapplication.views.list'))
+                    newreport.report_group.add(public_report_group) 
 
+                for f in request.FILES.getlist('file'):
+                    newdoc = Document(docfile = f, owner=request.user, report=newreport)
+                    newdoc.save()
+                return HttpResponseRedirect(reverse('myapplication.views.list'))
+
+            else:
+                reportform = ReportForm(user=request.user)
+                return HttpResponseRedirect(reverse('myapplication.views.create_report'))
         else:
-            docform = DocumentForm() # A empty, unbound form
             reportform = ReportForm(user=request.user)
             #return HttpResponseRedirect(reverse('myapplication.views.create_report'))
 
         return render_to_response(
             'myapplication/create_report.html',
-            {'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'docform' : docform, 'reportform' : reportform,'SM':SM},
+            {'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'reportform' : reportform,'SM':SM},
             context_instance=RequestContext(request)
         )
+
     else:
         return render(request, 'myapplication/auth.html')
+
 def view_all_reports(request):
     if request.user.is_authenticated():
         user_group_dict = dict(request.user.groups.values_list(flat=True))

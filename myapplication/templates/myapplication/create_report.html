@@ -5,7 +5,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>{{dctCurr.stName}}</title>  
+        <title>{{dctCurr.stName}}</title>
         <style>
             body{
             font-family:Arial,Helvetica,sans-serif;
@@ -72,13 +72,14 @@
             <p>{{ reportform.private.label_tag}} {{reportform.private}} {{reportform.private.help_text}}</p>
             <p>{{ reportform.groups_list.label_tag}} {{reportform.groups_list}} {{reportform.groups_list.help_text}}</p>
             <br>
-            Upload File(s)
-            <p>{{ docform.non_field_errors }}</p>
-            <p>{{ docform.docfile.label_tag }} {{ docform.docfile.help_text }}</p>
-            <p>
-                {{ docform.docfile.errors }}
-                {{ docform.docfile }}
-            </p>
+            Upload File(s) --Can upload up to 5 files.
+            <br><br>
+            <div><input type="file" name="file"/></div><br>
+            <div><input type="file" name="file"/></div><br>
+            <div><input type="file" name="file"/></div><br>
+            <div><input type="file" name="file"/></div><br>
+            <div><input type="file" name="file"/></div><br>
+
             <br>
             <input type="submit" value="Create Report" />
 
