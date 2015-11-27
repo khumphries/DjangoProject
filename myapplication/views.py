@@ -100,7 +100,7 @@ def create_report(request):
                         #print(newreport.groups_list)
                 else :
                     public_report_group = Report_Group(group='public')
-                    newreport.report_group.add(public_report_group) 
+                    newreport.report_group_set.add(public_report_group) 
 
                 for f in request.FILES.getlist('file'):
                     newdoc = Document(docfile = f, owner=request.user, report=newreport)
