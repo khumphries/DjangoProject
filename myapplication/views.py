@@ -28,7 +28,6 @@ from myapplication.shell import shell
 from myapplication.shell import get_home_dct_from_user
 from myapplication.shell import pathFromDct
 
-#comment out if pycrypto import not working for you, also comment out the part in messages where it's used
 from myapplication.encrypt_message import encrypt_msg, decrypt_msg
 
 dctCurr = None
@@ -391,9 +390,12 @@ def messages(request):
             if form.is_valid():
                 if User.objects.filter(username=form.cleaned_data['receiver']).exists():
                     msg = request.POST.get('msg')
-                    #comment out if pycrypto import not working for you
-                    if form.cleaned_data['encrypt'] == True:                      
-                        msg = str(encrypt_msg(msg))                
+                    if form.cleaned_data['encrypt'] == True:
+                        if form.cleaned_data['key'] != '':                      
+                            msg = str(encrypt_msg(msg, form.cleaned_data['key']))   
+                        else:
+                            msg = str(encrypt_msg(msg))
+
                     newmsg = Message(subject= form.cleaned_data['subject'], msg = msg, sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])), encrypt=form.cleaned_data['encrypt'])
                     newmsg.save()
                     return HttpResponseRedirect(reverse('myapplication.views.messages'))
@@ -428,7 +430,11 @@ def inbox(request):
             receiver = request.POST.get('receiver')
             message = Message.objects.filter(msg=request.POST.get('msg'), display=True)[0]
             if 'decrypt' in request.POST:
-                message.msg = decrypt_msg(message.msg)
+                key = request.POST.get('key')
+                if key != '':
+                    message.msg = decrypt_msg(message.msg, key)
+                else:
+                    message.msg = decrypt_msg(message.msg)
                 message.encrypt = False
                 message.save()
                 state = "Message Decrypted"
