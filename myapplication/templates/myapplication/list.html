@@ -71,10 +71,7 @@
             <ul>
             {% for report in reports %}
                 <li>
-                    Short Description: {{report.shortDescription}}<br>
-                    Detailed Description: {{report.detailedDescription}}<br>
-                    Date Created: {{report.timeStamp}}<br>
-                    Private: {{report.private}}<br>
+		  {{report.name}}
                     <br>
                 <form action="{% url 'view_report' %}" method="post">
                     {% csrf_token %}

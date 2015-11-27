@@ -14,15 +14,20 @@ from datetime import datetime
 def validate_dct_stName(stName, dct=None):
     if stName in Dct.objects.filter(dctParent=dct):
         raise ValidationError("cannot create new directory %s in directory %s: directory already exists" % stName,dct.stName)
+    
+def validate_report_name(name, report=None):
+    if name in Report.objects.filter(dct=report.dct):
+        raise ValidationError("cannot create new report %s in directory %s: a report with this name already exists" % name,report.dct.stName)
 
 class Dct(models.Model):
     dctParent = models.ForeignKey('self', null=True)
-    stName = models.CharField(validators=[validate_dct_stName], max_length=80) # TODO: MK: why 80? No idea
+    stName = models.CharField(validators=[validate_dct_stName], max_length=50) # TODO: MK: why 80? No idea
     owner = models.ForeignKey(User, null=True)
 
 class Report(models.Model):
+    name = models.CharField(max_length=50)
     timeStamp = models.DateTimeField(auto_now_add=True)
-    shortDescription = models.CharField(max_length=50)
+    shortDescription = models.CharField(max_length=50, validators=[validate_report_name])
     detailedDescription = models.CharField(max_length=500)
     private = models.BooleanField(default=False)
     dct = models.ForeignKey(Dct, null=True)

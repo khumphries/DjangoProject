@@ -90,7 +90,7 @@ def create_report(request):
         if request.method == 'POST':
             reportform = ReportForm(request.POST, user=request.user)
             if reportform.is_valid():
-                newreport = Report(shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user, dct=dctCurr)
+                newreport = Report(name = reportform.cleaned_data['name'], shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user, dct=dctCurr)
                 newreport.save()
                 #Adding code to give permissions based on group selected
                 if reportform.cleaned_data['private']:

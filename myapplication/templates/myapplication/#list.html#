@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <link rel="stylesheet" href="https://bootswatch.com/cyborg/bootstrap.css" media="screen">
 <link rel="stylesheet" href="https://bootswatch.com/cyborg/bootstrap.min.css">
-
 <html>
     <head>
         <meta charset="utf-8">
-        <title>{{dctCurr.stName}}</title>
+        <title>{{dctCurr.stName}}</title>  
         <style>
             body{
             font-family:Arial,Helvetica,sans-serif;
@@ -14,8 +13,7 @@
         </style> 
     </head>
     <body>
-        <body>
-                <div class="navbar navbar-default navbar-fixed-top">
+        <div class="navbar navbar-default navbar-fixed-top">
           <div class="container">
             <div class="navbar-header">
               <a href="{% url 'home' %}" class="navbar-brand">Secure Witness Share</a>
@@ -62,28 +60,55 @@
             </div>
           </div>
         </div>
-        <!-- Upload form. Note enctype attribute! -->
-        <br></br>
-        <br></br>
-        <form action="{% url 'create_report' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <p>{{ reportform.name.label_tag}} {{reportform.name}}</p>
-	    <p>{{ reportform.shortDescription.label_tag}} {{reportform.shortDescription}}</p>
-            <p>{{ reportform.detailedDescription.label_tag}} {{reportform.detailedDescription}}</p>
-            <p>{{ reportform.private.label_tag}} {{reportform.private}} {{reportform.private.help_text}}</p>
-            <p>{{ reportform.groups_list.label_tag}} {{reportform.groups_list}} {{reportform.groups_list.help_text}}</p>
-            <br>
-            Upload File(s) --Can upload up to 5 files.
-            <br><br>
-            <div><input type="file" name="file"/></div><br>
-            <div><input type="file" name="file"/></div><br>
-            <div><input type="file" name="file"/></div><br>
-            <div><input type="file" name="file"/></div><br>
-            <div><input type="file" name="file"/></div><br>
+        <br>
+        </br>
+        <br>
+        </br>
+      <p>Current directory: {{path}}</p>
 
-            <br>
-            <input type="submit" value="Create Report" />
+        {% if reports %}
+            <p>Reports in {{dctCurr.stName}}:</p>
+            <ul>
+            {% for report in reports %}
+                <li>
+                    Short Description: {{report.shortDescription}}<br>
+                    Detailed Description: {{report.detailedDescription}}<br>
+                    Date Created: {{report.timeStamp}}<br>
+                    Private: {{report.private}}<br>
+                    <br>
+                <form action="{% url 'view_report' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="shortDescription" value="{{ report.shortDescription }}" />
+                    <input type="hidden" name="dateCreated" value="{{ report.timeStamp }}" />
+                    <input type="submit" value="View Files in Report" />
+                </form>
+                <br><br>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
 
+        {% if rgdct %}
+    	<p>Directories in {{dctCurr.stName}}:</p>
+            <ul>
+            {% for dct in rgdct %}
+                <p><a href="{%url 'list' %}">{{dct.stName}}</a></p>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        
+    	<!-- cli form for directory manipulation -->
+    	<form action="{% url 'list' %}" method="post">
+        	  {% csrf_token %}
+        	  <p>{{cliform.command.label_tag}} {{ cliform.command }}</p>
+    	  <p>{{cliform.command.help_text}}</p>
+    	</form>
+
+    	{% if stErr %}
+    	    <p>{{stErr}}<p>
+    	{% endif %}
+
+        <p><a href="{% url 'create_report' %}">Create a Report</a></p>
         <p><a href="{% url 'home' %}">Home</a></p>
         <p><a href="{% url 'logout' %}">Logout</a></p>
 
