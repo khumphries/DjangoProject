@@ -64,12 +64,19 @@
         </br>
         <br>
         </br>
-        Short Description: {{report.shortDescription}}<br>
-        Detailed Description: {{report.detailedDescription}}<br>
+
+      <form action="{% url 'edit_report' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        Short Description: <input type = "text" name = "shortDescription" value = "{{report.shortDescription}}"/> <br>
+        Detailed Description: <input type = "text" name = "detailedDescription" value = "{{report.detailedDescription}}"/><br>
         Date Created: {{report.timeStamp}}<br>
-        Private: {{report.private}}<br>
-        ReportID: {{report.reportID}}
-        <br>
+        Private: {{report.private}}
+        <br><br>
+
+        <input type = "hidden" name = "reportID" value = "{{report.reportID}}"/>
+        <input type = "submit" name = "updateReport" value = "Update Report Information"/>
+        <br><br></form>
+
         <!-- List of uploaded documents -->
         {% if documents %}
         Documents in Report:
@@ -83,6 +90,8 @@
         {% else %}
         No Documents in Report.
         {% endif %}
+
+      
 
          <p><a href="{% url 'home' %}">Home</a></p>
         <p><a href="{% url 'logout' %}">Logout</a></p>

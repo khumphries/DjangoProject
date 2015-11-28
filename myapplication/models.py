@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from datetime import datetime
+import uuid
 # Hungarian tags for models:
 # dct - a directory
 
@@ -27,6 +28,7 @@ class Report(models.Model):
     private = models.BooleanField(default=False)
     dct = models.ForeignKey(Dct, null=True)
     owner = models.ForeignKey(User, null=True)
+    reportID = models.UUIDField(default=uuid.uuid4, editable=True)
 
 class Report_Group(models.Model):
     group = models.CharField(max_length=80)

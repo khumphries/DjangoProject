@@ -150,6 +150,29 @@ def view_report(request):
     else:
         return render(request, 'myapplication/auth.html')
 
+def edit_report(request):
+    if request.user.is_authenticated():
+        if request.method == 'POST':
+            report = Report.objects.get(reportID=request.POST.get('reportID'))
+            #report = Report.objects.filter(shortDescription=(request.POST.get('shortDescription')))[0]
+            documents = Document.objects.filter(report=report)
+            SM = request.user.groups.filter(name='Site_Managers').exists()
+
+            if 'updateReport' in request.POST:
+                report.shortDescription = request.POST.get('shortDescription')
+                report.detailedDescription = request.POST.get('detailedDescription')
+                report.save()
+                return HttpResponseRedirect(reverse('myapplication.views.list'))
+            
+
+            return render_to_response(
+            'myapplication/edit_report.html',
+            {'report':report, 'documents':documents, 'SM':SM},
+            context_instance=RequestContext(request)
+            )
+    else:
+        return render(request, 'myapplication/auth.html')
+
 def groups_list(request):
     if request.user.is_authenticated():
         groups = request.user.groups.values_list('name',flat=True)

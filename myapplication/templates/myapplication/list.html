@@ -75,12 +75,20 @@
                     Detailed Description: {{report.detailedDescription}}<br>
                     Date Created: {{report.timeStamp}}<br>
                     Private: {{report.private}}<br>
+                    
                     <br>
                 <form action="{% url 'view_report' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="shortDescription" value="{{ report.shortDescription }}" />
                     <input type="hidden" name="dateCreated" value="{{ report.timeStamp }}" />
                     <input type="submit" value="View Files in Report" />
+                </form>
+                <br>
+                <form action="{% url 'edit_report' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="shortDescription" value="{{ report.shortDescription }}" />
+                    <input type="hidden" name="reportID" value="{{ report.reportID }}" />
+                    <input type="submit" value="Edit Report" />
                 </form>
                 <br><br>
                 </li>
