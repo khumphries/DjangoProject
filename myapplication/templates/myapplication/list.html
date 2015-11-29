@@ -92,11 +92,23 @@
             </ul>
         {% endif %}
 
+	    <form action="{% url 'list' %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="command" value="cd .." />
+              <input type="submit" value="Go to parent directory" />
+            </form>
+           
+
         {% if rgdct %}
     	<p>Directories in {{dctCurr.stName}}:</p>
             <ul>
             {% for dct in rgdct %}
-                <p>{{dct.stName}}</p>
+		<form action="{% url 'list' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="command" value="cd {{dct.stName}}" />
+                    <input type="submit" value="{{dct.stName}}" />
+                </form>
+                
             {% endfor %}
             </ul>
         {% endif %}
