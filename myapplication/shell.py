@@ -1,13 +1,13 @@
-from myapplication.models import Document
 from myapplication.models import Dct
-
-# TODO: MK: currently this can totally throw error if you give an invalid path. Need to deal
-# with that somehow, but for now just getting basic functionality
+from myapplication.models import Report
 
 # TODO: MK: this function currently allows you to reach anything in the filesystem.
 # Need to implement reasonable permissions policy here
 def dctFromPath(path, user, dctCurr):
 #    print(path)
+    if path.strip() == "":
+        return dctCurr
+
     if path.endswith("/"):
         path = path[:-1]
     if path[0] == '/' or path[0] == '~':
@@ -111,7 +111,7 @@ def shell(rgwrd, request, dctCurr):
 
         if dctTarget is not None:
             cdct = Dct.objects.all().filter(dctParent=dctTarget)
-            cdoc = Document.objects.all().filter(dct=dctTarget)
+            cdoc = Report.objects.all().filter(dct=dctTarget)
             if len(cdct) == 0 and len(cdoc) == 0 and fForce:
                 dctTarget.delete()
                 return dctCurr
@@ -147,8 +147,39 @@ def shell(rgwrd, request, dctCurr):
                     dctSrc.stName = stNameNew
                 dctSrc.save()
             else:
-                return "mv does not currently support reports, and " + src + " is not a valid directory" 
-               # TODO: MK: in here handle calling mv on reports
+                try:
+                    dctSrc = dctFromPath("/".join(src.split("/")[:-1]), request.user, dctCurr)
+                except:
+                    dctSrc = None
+                repName = src.split("/")[-1]
+                if dctSrc is None:
+                    dctSrc = dctCurr
+                try:
+                    rep = Report.objects.all().filter(dct=dctSrc, name=repName)[0]
+                except:
+                    return "cannot find " + src
+
+                try:
+                    dctDst = dctFromPath(dst, request.user, dctCurr)
+                except:
+                    dctDst = None
+
+                if dctDst is not None:
+                    rep.dct = dctDst
+                    rep.save()
+                    return dctCurr
+
+                try:
+                    dctDst = dctFromPath("/".join(dst.split("/")[:-1]), request.user, dctCurr)
+                    stNameNew = dst.split("/")[-1]
+                except:
+                    return "mv: cannot find " + dst
+                
+                rep.dct = dctDst
+                rep.name = stNameNew
+                rep.save()
+                return dctCurr
+
         else:
             return "mv requires two arguments"
 
