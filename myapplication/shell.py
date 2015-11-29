@@ -52,6 +52,17 @@ def pathFromDct(dct):
     path = "root/" + path
     return path
 
+def remove(dct):
+    rgdct = Dct.objects.all().filter(dctParent=dct)
+    rgrep = Report.objects.all().filter(dct=dct)
+    for rep in rgrep:
+        rep.delete()
+    
+    for dctInner in rgdct:
+        remove(dctInner)
+    
+    dct.delete()
+
 def get_home_dct_from_user(user):
     dct_name = user.username
     dct = Dct.objects.get(owner=user, stName=dct_name)
@@ -92,6 +103,7 @@ def shell(rgwrd, request, dctCurr):
  
     elif rgwrd[0] == "rm":
         fForce = False
+        fRecur = False
         if len(rgwrd) < 2:
             return "please supply a target for rm"
         if rgwrd[1].startswith("-"):
@@ -101,6 +113,8 @@ def shell(rgwrd, request, dctCurr):
             pathToTarget = rgwrd[2]
             if "f" in rgwrd[1]:
                 fForce = True
+            if "r" in rgwrd[1]:
+                fRecur = True
         else:
             pathToTarget = rgwrd[1]
 
@@ -110,15 +124,27 @@ def shell(rgwrd, request, dctCurr):
             dctTarget = None
 
         if dctTarget is not None:
-            cdct = Dct.objects.all().filter(dctParent=dctTarget)
-            cdoc = Report.objects.all().filter(dct=dctTarget)
-            if len(cdct) == 0 and len(cdoc) == 0 and fForce:
-                dctTarget.delete()
+            rgdct = Dct.objects.all().filter(dctParent=dctTarget)
+            rgrep = Report.objects.all().filter(dct=dctTarget)
+            if fRecur or (len(rgdct) == 0 and len(rgrep) == 0):
+                remove(dctTarget)
                 return dctCurr
             else:
-                return "cannot remove " + pathToTarget + "; rm currently only supports empty directories"
+                return "cannot remove " + pathToTarget + " since it is not empty. Supply the -r option to rm to recursively delete"
  
-        return "cannot remove " + pathToTarget + " since it does not exist or is not a directory"
+        # if we make it this far, then the target must be a report
+        dct = dctFromPath("/".join(pathToTarget.split("/")[:-1]), request.user, dctCurr)
+        name = pathToTarget.split("/")[-1]
+        try:
+            rep = Report.objects.all().filter(dct=dct, name=name)[0]
+        except:
+            rep = None
+
+        if rep is not None:
+            rep.delete()
+            return dctCurr
+
+        return "cannot remove " + pathToTarget + " since it does not exist"
         
     elif rgwrd[0] == "mv":
         if len(rgwrd) == 3:
