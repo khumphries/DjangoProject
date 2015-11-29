@@ -164,6 +164,11 @@ def edit_report(request):
                 report.save()
                 return HttpResponseRedirect(reverse('myapplication.views.list'))
             
+            if 'uploadFiles' in request.POST:
+                for f in request.FILES.getlist('file'):
+                    newdoc = Document(docfile = f, owner=request.user, report=report)
+                    newdoc.save()
+                return HttpResponseRedirect(reverse('myapplication.views.list'))
 
             return render_to_response(
             'myapplication/edit_report.html',

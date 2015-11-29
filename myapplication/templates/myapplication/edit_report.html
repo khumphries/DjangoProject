@@ -88,9 +88,21 @@
             {% endfor %}
             </ul>
         {% else %}
-        No Documents in Report.
+        No Documents currently in Report.
         {% endif %}
+        <br><br><br>
 
+        <form action="{% url 'edit_report' %}" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div><input type="file" name="file"/></div><br>
+          <div><input type="file" name="file"/></div><br>
+          <div><input type="file" name="file"/></div><br>
+          <div><input type="file" name="file"/></div><br>
+          <div><input type="file" name="file"/></div><br>
+
+          <input type = "hidden" name = "reportID" value = "{{report.reportID}}"/>
+          <input type = "submit" name = "uploadFiles" value = "Add Files to Report"/>
+        <br><br></form>
       
 
          <p><a href="{% url 'home' %}">Home</a></p>
