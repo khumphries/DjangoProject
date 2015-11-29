@@ -84,6 +84,12 @@
             {% for document in documents %}
                 <li>
                     <a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a>
+                    <form action="{% url 'edit_report' %}" method="post">
+                    {% csrf_token %}
+                    <input type = "hidden" name = "reportID" value = "{{report.reportID}}"/>
+                    <input type="hidden" name="docfile" value="{{ document.docfile }}" />               
+                    <input type="submit" name = 'delete' value="Delete Document" />
+                    </form>
                 </li>
             {% endfor %}
             </ul>

@@ -164,6 +164,11 @@ def edit_report(request):
                 report.save()
                 return HttpResponseRedirect(reverse('myapplication.views.list'))
             
+            if 'delete' in request.POST:
+                deletedDoc = Document.objects.get(docfile=request.POST.get('docfile'))
+                deletedDoc.delete()
+                return HttpResponseRedirect(reverse('myapplication.views.list'))
+
             if 'uploadFiles' in request.POST:
                 for f in request.FILES.getlist('file'):
                     newdoc = Document(docfile = f, owner=request.user, report=report)
