@@ -22,5 +22,5 @@ def decrypt_msg(msg, key=None):
 
 
 #msg = "hello"
-#enc = encrypt_msg(msg)
-#print(decrypt_msg(enc).decode('utf-8'))
+#enc = encrypt_msg(msg, "123456789")
+#print(decrypt_msg(enc, "123456789"))

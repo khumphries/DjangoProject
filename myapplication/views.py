@@ -28,7 +28,6 @@ from myapplication.shell import shell
 from myapplication.shell import get_home_dct_from_user
 from myapplication.shell import pathFromDct
 
-#comment out if pycrypto import not working for you, also comment out the part in messages where it's used
 from myapplication.encrypt_message import encrypt_msg, decrypt_msg
 
 dctCurr = None
@@ -100,7 +99,7 @@ def create_report(request):
                         #print(newreport.groups_list)
                 else :
                     public_report_group = Report_Group(group='public')
-                    newreport.report_group.add(public_report_group) 
+                    newreport.report_group_set.add(public_report_group) 
 
                 for f in request.FILES.getlist('file'):
                     newdoc = Document(docfile = f, owner=request.user, report=newreport)
@@ -145,6 +144,39 @@ def view_report(request):
             SM = request.user.groups.filter(name='Site_Managers').exists()
             return render_to_response(
             'myapplication/view_report.html',
+            {'report':report, 'documents':documents, 'SM':SM},
+            context_instance=RequestContext(request)
+            )
+    else:
+        return render(request, 'myapplication/auth.html')
+
+def edit_report(request):
+    if request.user.is_authenticated():
+        if request.method == 'POST':
+            report = Report.objects.get(reportID=request.POST.get('reportID'))
+            #report = Report.objects.filter(shortDescription=(request.POST.get('shortDescription')))[0]
+            documents = Document.objects.filter(report=report)
+            SM = request.user.groups.filter(name='Site_Managers').exists()
+
+            if 'updateReport' in request.POST:
+                report.shortDescription = request.POST.get('shortDescription')
+                report.detailedDescription = request.POST.get('detailedDescription')
+                report.save()
+                return HttpResponseRedirect(reverse('myapplication.views.list'))
+            
+            if 'delete' in request.POST:
+                deletedDoc = Document.objects.get(docfile=request.POST.get('docfile'))
+                deletedDoc.delete()
+                return HttpResponseRedirect(reverse('myapplication.views.list'))
+
+            if 'uploadFiles' in request.POST:
+                for f in request.FILES.getlist('file'):
+                    newdoc = Document(docfile = f, owner=request.user, report=report)
+                    newdoc.save()
+                return HttpResponseRedirect(reverse('myapplication.views.list'))
+
+            return render_to_response(
+            'myapplication/edit_report.html',
             {'report':report, 'documents':documents, 'SM':SM},
             context_instance=RequestContext(request)
             )
@@ -391,9 +423,12 @@ def messages(request):
             if form.is_valid():
                 if User.objects.filter(username=form.cleaned_data['receiver']).exists():
                     msg = request.POST.get('msg')
-                    #comment out if pycrypto import not working for you
-                    if form.cleaned_data['encrypt'] == True:                      
-                        msg = str(encrypt_msg(msg))                
+                    if form.cleaned_data['encrypt'] == True:
+                        if form.cleaned_data['key'] != '':                      
+                            msg = str(encrypt_msg(msg, form.cleaned_data['key']))   
+                        else:
+                            msg = str(encrypt_msg(msg))
+
                     newmsg = Message(subject= form.cleaned_data['subject'], msg = msg, sender = request.user, receiver=(User.objects.get(username=form.cleaned_data['receiver'])), encrypt=form.cleaned_data['encrypt'])
                     newmsg.save()
                     return HttpResponseRedirect(reverse('myapplication.views.messages'))
@@ -428,7 +463,11 @@ def inbox(request):
             receiver = request.POST.get('receiver')
             message = Message.objects.filter(msg=request.POST.get('msg'), display=True)[0]
             if 'decrypt' in request.POST:
-                message.msg = decrypt_msg(message.msg)
+                key = request.POST.get('key')
+                if key != '':
+                    message.msg = decrypt_msg(message.msg, key)
+                else:
+                    message.msg = decrypt_msg(message.msg)
                 message.encrypt = False
                 message.save()
                 state = "Message Decrypted"
