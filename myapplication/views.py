@@ -85,7 +85,6 @@ def list(request):
 def create_report(request):
     SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.user.is_authenticated():
-        dctCurr = get_home_dct_from_user(request.user)
         if request.method == 'POST':
             reportform = ReportForm(request.POST, user=request.user)
             if reportform.is_valid():
