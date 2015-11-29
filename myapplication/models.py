@@ -22,13 +22,13 @@ def validate_report_name(name, report=None):
 
 class Dct(models.Model):
     dctParent = models.ForeignKey('self', null=True)
-    stName = models.CharField(validators=[validate_dct_stName], max_length=50) # TODO: MK: why 80? No idea
+    stName = models.CharField(validators=[validate_dct_stName], max_length=50)
     owner = models.ForeignKey(User, null=True)
 
 class Report(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, default='dummy_report', validators=[validate_report_name])
     timeStamp = models.DateTimeField(auto_now_add=True)
-    shortDescription = models.CharField(max_length=50, validators=[validate_report_name])
+    shortDescription = models.CharField(max_length=50)
     detailedDescription = models.CharField(max_length=500)
     private = models.BooleanField(default=False)
     dct = models.ForeignKey(Dct, null=True)
