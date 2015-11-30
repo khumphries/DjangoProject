@@ -11,8 +11,6 @@
             font-size: 12px;
             }
         </style>
-        <p style ="font-size:20px">To add a user to a existing group enter a group name and enter the username of the user you want to add.</p>
-        <p style ="font-size:20px">To create a group enter the name of the group and put your username in the field.</p>
     </head>
     <body>
         <div class="navbar navbar-default navbar-fixed-top">
@@ -75,14 +73,12 @@
             <p>{{form.groupname.label_tag}} {{ form.groupname }}</p>
             
             <p>{{form.username.label_tag}} {{ form.username }}</p>
+            <p>{{form.choice_field}}</p>
             <input type="submit" value="Submit" />
         </form>
 
         <p>The groupname can be no longer than 80 characters.</p>
         <p>The username can be no longer than 30 characters.</p>
-        <p><a href="{% url 'home' %}">Home</a></p>
-        <p><a href="{% url 'logout' %}">Logout</a></p>
-
     </body>
 </html>
 

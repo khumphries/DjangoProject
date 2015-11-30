@@ -201,39 +201,39 @@ def groups_creator(request):
             form = GroupsForm(request.POST)
             if form.is_valid():
                 #checks if group already exists
-                if Group.objects.filter(name=form.cleaned_data['groupname']).exists():
-                    old_group = Group.objects.get(name=form.cleaned_data['groupname'])
-                    #Checks if user is valid
-                    if User.objects.filter(username=form.cleaned_data['username']).exists():
-                        user = User.objects.get(username=form.cleaned_data['username'])
-                        #checks if user is already in the group
-                        if user.groups.filter(name=form.cleaned_data['groupname']).exists():
-                            state = 'That user is already in the group.'
-
-                        #adds user to group and saves it in the database
-                        else:
-                            if request.user.groups.filter(name=form.cleaned_data['groupname']).exists():
-                                user.groups.add(old_group)
-                                old_group.save()
-                                user.save()
-                                state = 'User successfully added.'
-                                return HttpResponseRedirect(reverse('myapplication.views.groups_creator'))
-                            else:
-                                state = 'You must be in the group to add another user to the group.'
-                    else :
-                        state = 'That user does not exist. Please try again.'
-                else :
-                    if form.cleaned_data['username'] == request.user.get_username():
+                if form.cleaned_data['choice_field'] == '1':
+                    if Group.objects.filter(name=form.cleaned_data['groupname']).exists():
+                        state = 'Group with that name already exists'
+                    else:
                         new_group = Group.objects.create(name=form.cleaned_data['groupname'])
                         new_group.user_set.add(request.user)
                         new_group.save()
                         request.user.save()
                         state = 'Group successfully created.'
-                        return HttpResponseRedirect(reverse('myapplication.views.groups_creator'))
+                        #return HttpResponseRedirect(reverse('myapplication.views.groups_creator'))
+                else :
+                    if Group.objects.filter(name=form.cleaned_data['groupname']).exists():
+                        old_group=Group.objects.get(name=form.cleaned_data['groupname'])
+                        if User.objects.filter(username=form.cleaned_data['username']).exists():
+                            user = User.objects.get(username=form.cleaned_data['username'])
+                            #checks if user is already in the group
+                            if user.groups.filter(name=form.cleaned_data['groupname']).exists():
+                                state = 'That user is already in the group.'
+
+                            #adds user to group and saves it in the database
+                            else:
+                                if request.user.groups.filter(name=form.cleaned_data['groupname']).exists():
+                                    user.groups.add(old_group)
+                                    old_group.save()
+                                    user.save()
+                                    state = 'User successfully added.'
+                                    #return HttpResponseRedirect(reverse('myapplication.views.groups_creator'))
+                                else:
+                                    state = 'You must be in the group to add another user to the group.'
+                        else :
+                            state = 'That user does not exist. Please try again.'
                     else :
-                        state = 'Group with that name already exists.'
-            else :
-                state = 'Please fill all the fields.'
+                        state = 'That Group does not exist.'
         else :
             form = GroupsForm()
             
@@ -262,7 +262,7 @@ def sign_up(request):
                 home_dct.save()
                 user_authentication = authenticate(username=form.cleaned_data['username'],password=form.cleaned_data['password'])
                 login(request, user_authentication)
-                return HttpResponseRedirect(reverse('myapplication.views.sign_up_complete'))
+                return HttpResponseRedirect(reverse('myapplication.views.home_page'))
         else :
             state = 'Please fill out all fields.'
     else:

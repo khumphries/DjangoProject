@@ -29,9 +29,10 @@ class UserForm(forms.Form):
         password = forms.CharField(label='Password', max_length=30, widget=forms.PasswordInput)
 
 class GroupsForm(forms.Form):
+    username = forms.CharField(label='User Name', max_length=30, required=False)
     groupname = forms.CharField(label='Group Name', max_length=80)
-    username = forms.CharField(label='User Name', max_length=30)
-
+    CHOICES = (('1','Create group',),('2','Add user to group',))
+    choice_field = forms.ChoiceField(widget=forms.RadioSelect,choices=CHOICES)
 class MessageForm(forms.Form):
     subject = forms.CharField(label="Subject", max_length=50)
     msg = forms.CharField(label="Message", max_length=500)
