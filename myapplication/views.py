@@ -34,20 +34,20 @@ from myapplication.encrypt_message import encrypt_msg, decrypt_msg
 
 from myapplication.search import make_search
 
-dctCurr = None
+mpuser_dctCurr = {}
 fErrDisplayed = False
 stErr = ""
 
 def list(request):
-    global dctCurr
+    global mpuser_dctCurr
     global fErrDisplayed
     global stErr
 
     if request.user.is_authenticated():
         SM = request.user.groups.filter(name='Site_Managers').exists()        
-        if dctCurr is None:
+        if request.user.username not in mpuser_dctCurr:
             print(request.user.username)
-            dctCurr = get_home_dct_from_user(request.user)
+            mpuser_dctCurr[request.user.username] = get_home_dct_from_user(request.user)
 	   # Handle file upload
 
         if 'command' in request.POST:
@@ -55,21 +55,21 @@ def list(request):
             if cliform.is_valid():
                 rgwrd = request.POST['command'].split(' ')
                 # parse commands
-                res = shell(rgwrd, request, dctCurr)
+                res = shell(rgwrd, request, mpuser_dctCurr[request.user.username])
                 if isinstance(res, str):
                     stErr = res
                     fErrDisplay = False
                 else:
-                    dctCurr = res
+                    mpuser_dctCurr[request.user.username] = res
                 return HttpResponseRedirect(reverse('myapplication.views.list'))
            
         else:
             cliform = CLIForm()
 
         # Load documents for the list page
-        reports = Report.objects.filter(dct=dctCurr)
+        reports = Report.objects.filter(dct=mpuser_dctCurr[request.user.username])
         documents = Document.objects.all()
-        rgdct = Dct.objects.filter(dctParent=dctCurr)
+        rgdct = Dct.objects.filter(dctParent=mpuser_dctCurr[request.user.username])
 
         stErrDisplay = None
 
@@ -80,7 +80,7 @@ def list(request):
         # Render list page with the documents and the form
         return render_to_response(
             'myapplication/list.html',
-            {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'stErr' : stErrDisplay, 'SM':SM},
+            {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'cliform': cliform, 'dctCurr' : mpuser_dctCurr[request.user.username], 'path': pathFromDct(mpuser_dctCurr[request.user.username]), 'stErr' : stErrDisplay, 'SM':SM},
             context_instance=RequestContext(request)
         )
     else:
@@ -92,7 +92,7 @@ def create_report(request):
         if request.method == 'POST':
             reportform = ReportForm(request.POST, user=request.user)
             if reportform.is_valid():
-                newreport = Report(name = reportform.cleaned_data['name'], shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user, dct=dctCurr)
+                newreport = Report(name = reportform.cleaned_data['name'], shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user, dct=mpuser_dctCurr[request.user.username])
                 newreport.save()
                 #Adding code to give permissions based on group selected
                 if reportform.cleaned_data['private']:
@@ -118,7 +118,7 @@ def create_report(request):
 
         return render_to_response(
             'myapplication/create_report.html',
-            {'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'reportform' : reportform,'SM':SM},
+            {'dctCurr' : mpuser_dctCurr[request.user.username], 'path': pathFromDct(mpuser_dctCurr[request.user.username]), 'reportform' : reportform,'SM':SM},
             context_instance=RequestContext(request)
         )
 
@@ -519,8 +519,8 @@ def post_request(request):
     global fErrDisplayed
     global stErr
     SM = request.user.groups.filter(name='Site_Managers').exists()    
-    if dctCurr is None:
-        dctCurr = get_home_dct_from_user(request.user)
+    if request.user.username not in mpuser_dctCurr:
+        mpuser_dctCurr[request.user.username] = get_home_dct_from_user(request.user)
    # Handle file upload
 
     if 'command' in request.POST:
@@ -528,21 +528,21 @@ def post_request(request):
         if cliform.is_valid():
             rgwrd = request.POST['command'].split(' ')
             # parse commands
-            res = shell(rgwrd, request, dctCurr)
+            res = shell(rgwrd, request, mpuser_dctCurr[request.user.username])
             if isinstance(res, str):
                 stErr = res
                 fErrDisplay = False
             else:
-                dctCurr = res
+                mpuser_dctCurr[request.user.username] = res
             return HttpResponseRedirect(reverse('myapplication.views.list'))
        
     else:
         cliform = CLIForm()
 
     # Load documents for the list page
-    reports = Report.objects.filter(dct=dctCurr)
+    reports = Report.objects.filter(dct=mpuser_dctCurr[request.user.username])
     documents = Document.objects.all()
-    rgdct = Dct.objects.filter(dctParent=dctCurr)
+    rgdct = Dct.objects.filter(dctParent=mpuser_dctCurr[request.user.username])
 
     stErrDisplay = None
 
@@ -552,7 +552,7 @@ def post_request(request):
     # Render list page with the documents and the form
     return render_to_response(
         'myapplication/post_request.html',
-        {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'cliform': cliform, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr), 'stErr' : stErrDisplay,'SM':SM},
+        {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'cliform': cliform, 'dctCurr' : mpuser_dctCurr[request.user.username], 'path': pathFromDct(mpuser_dctCurr[request.user.username]), 'stErr' : stErrDisplay,'SM':SM},
         context_instance=RequestContext(request)
     )
 
