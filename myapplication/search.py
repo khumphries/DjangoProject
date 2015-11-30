@@ -11,7 +11,7 @@ from myapplication.models import Report
 def results_as_reports(results):
     reports = []
     for result in results:
-        report = Report.objects.filter(shortDescription=result['shortDes'])[0]
+        report = Report.objects.filter(reportID=result['rid'])[0]
         reports.append(report)
     return reports
 
@@ -28,17 +28,15 @@ def make_search(queryText, request):
     # both the name and short des are stored; we're currently using short description to find documents (ah),
     # so that's stored too. I'd prefer to store an ID or something, but need to discuss with team
     # long description isn't being stored for space reasons
-    schema = Schema(name=TEXT(stored=True), shortDes=TEXT(stored=True), longDes=TEXT)
+    schema = Schema(name=TEXT(stored=True), shortDes=TEXT, longDes=TEXT, rid=STORED)
     inx = create_in("myindex", schema)
     writer = inx.writer()
     for rep in rgrep:
-        writer.add_document(name=rep.name, shortDes=rep.shortDescription, longDes=rep.detailedDescription)
+        writer.add_document(name=rep.name, shortDes=rep.shortDescription, longDes=rep.detailedDescription, rid=rep.reportID)
     writer.commit()
 
     with inx.searcher() as searcher:
         parser = MultifieldParser(["name","shortDes","longDes"], schema=schema)
         query = parser.parse(queryText)
         results = searcher.search(query)
-        print("search results:")
-        print(results)
         return results_as_reports(results)
