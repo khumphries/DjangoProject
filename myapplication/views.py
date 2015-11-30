@@ -94,15 +94,28 @@ def create_report(request):
             if reportform.is_valid():
                 newreport = Report(name = reportform.cleaned_data['name'], shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user, dct=dctCurr)
                 newreport.save()
+                site_manager_report_group = Report_Group(group='Site_Managers')
+                newreport.report_group_set.add(site_manager_report_group)
+
                 #Adding code to give permissions based on group selected
                 if reportform.cleaned_data['private']:
                     if reportform.cleaned_data['groups_list'] != 'None':
                         new_report_group = Report_Group(group=reportform.cleaned_data['groups_list'])
                         newreport.report_group_set.add(new_report_group)
+                        newreport.save()
+                        new_report_group.save()
                         #print(newreport.groups_list)
+                    else :
+                        private_report_group_name = request.user.get_username() + '_private'
+                        new_report_group = Report_Group(group=private_report_group_name)
+                        newreport.report_group_set.add(new_report_group)
+                        newreport.save()
+                        new_report_group.save()
                 else :
                     public_report_group = Report_Group(group='public')
-                    newreport.report_group_set.add(public_report_group) 
+                    newreport.report_group_set.add(public_report_group)
+                    newreport.save()
+                    new_report_group.save()
 
                 for f in request.FILES.getlist('file'):
                     newdoc = Document(docfile = f, owner=request.user, report=newreport)
@@ -255,7 +268,11 @@ def sign_up(request):
             else:
                 user = User.objects.create_user(form.cleaned_data['username'],'',form.cleaned_data['password'])
                 group = Group.objects.get(name='public')
+                private_group_name = form.cleaned_data['username'] + '_private'
+                private_group = Group.objects.create(name=private_group_name)
                 user.groups.add(group)
+                user.groups.add(private_group)
+                private_group.save()
                 group.save()
                 user.save()
                 home_dct = Dct(stName=form.cleaned_data['username'], owner=user)
@@ -574,16 +591,20 @@ def post_request(request):
 #TODO: MK: use something more unique than short description to identify reports
 # BRING THIS UP AT STANDUP ON MONDAY - WE NEED TO HAVE SOME CONSISTENT WAY OF FINDING A REPORT
 def search(request):
-    if 'queryText' in request.POST:
-        # we've already made a search, so do the work and return the results
-        resultsAsRep = make_search(request.POST['queryText'], request)
-    else:
-        resultsAsRep = None
+    SM = request.user.groups.filter(name='Site_Managers').exists()
+    if request.user.is_authenticated():
+        if 'queryText' in request.POST:
+            # we've already made a search, so do the work and return the results
+            resultsAsRep = make_search(request.POST['queryText'], request)
+        else:
+            resultsAsRep = None
 
-    queryForm = QueryForm()
+        queryForm = QueryForm()
     
-    return render(
-        request,
-        'myapplication/search.html',
-        {'results' : resultsAsRep, 'queryForm': queryForm}
-        )
+        return render(
+            request,
+            'myapplication/search.html',
+            {'results' : resultsAsRep, 'queryForm': queryForm, 'SM' : SM}
+            )
+    else :
+        return render(request, 'myapplication/auth.html')
