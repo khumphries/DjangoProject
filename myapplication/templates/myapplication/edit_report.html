@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="https://bootswatch.com/cyborg/bootstrap.min.css">
 <html>
     <head>
+        <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
         <meta charset="utf-8">
         <title>View Report</title>  
         <style>
@@ -13,6 +14,27 @@
         </style> 
     </head>
     <body>
+      <script type="text/javascript">
+
+        $(document).ready(function() {
+            var max_fields      = 50; //maximum input boxes allowed
+            var wrapper         = $(".input_fields_wrap"); //Fields wrapper
+            var add_button      = $(".add_field_button"); //Add button ID
+        
+            var x = 1; //initlal text box count
+            $(add_button).click(function(e){ //on add input button click
+              e.preventDefault();
+              if(x < max_fields){ //max input box allowed
+                x++; //text box increment
+            $(wrapper).append('<br><div><input type="file" name="file"/><a href="#" class="remove_field">Remove</a></div>'); //add input box
+            }
+          });
+        
+          $(wrapper).on("click",".remove_field", function(e){ //user click on remove text
+            e.preventDefault(); $(this).parent('div').remove(); x--;
+          })
+        });
+      </script>
         <div class="navbar navbar-default navbar-fixed-top">
           <div class="container">
             <div class="navbar-header">
@@ -100,11 +122,12 @@
 
         <form action="{% url 'edit_report' %}" method="post" enctype="multipart/form-data">
           {% csrf_token %}
-          <div><input type="file" name="file"/></div><br>
-          <div><input type="file" name="file"/></div><br>
-          <div><input type="file" name="file"/></div><br>
-          <div><input type="file" name="file"/></div><br>
-          <div><input type="file" name="file"/></div><br>
+            <div class="input_fields_wrap">
+                <button class="add_field_button">Add Another File</button>
+                <br>
+                <div><input type="file" name="file"/></div>
+            </div>
+            <br>
 
           <input type = "hidden" name = "reportID" value = "{{report.reportID}}"/>
           <input type = "submit" name = "uploadFiles" value = "Add Files to Report"/>
