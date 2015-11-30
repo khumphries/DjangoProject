@@ -302,7 +302,8 @@ def login_user(request):
 def home_page(request):
     if request.user.is_authenticated():
         SM = request.user.groups.filter(name='Site_Managers').exists()
-        return render_to_response('myapplication/home.html', {'SM':SM})
+        unread = len(Message.objects.filter(receiver=request.user, read=False))
+        return render_to_response('myapplication/home.html', {'SM':SM, 'unread':unread})
     else:
         return render(request, 'myapplication/auth.html')
 def site_manager(request):
@@ -459,6 +460,9 @@ def inbox(request):
     state = ""
     if request.user.is_authenticated():
         messages = Message.objects.filter(receiver=request.user, display=True).order_by('-sentDate')
+        for m in messages:
+            m.read = True
+            m.save()
 
         if request.method == 'POST':
             msg = request.POST.get('msg')
