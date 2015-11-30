@@ -483,7 +483,7 @@ def inbox(request):
                 message.display = False
                 message.save()
                 state = "Message Deleted"
-                #return HttpResponseRedirect(reverse('myapplication.views.inbox'))
+            return HttpResponseRedirect(reverse('myapplication.views.inbox'))
 
         # Render inbox page with the messages
         return render_to_response(
