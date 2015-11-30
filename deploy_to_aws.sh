@@ -29,6 +29,7 @@ sudo yum install -y python34-pip
 sudo yum install -y python34-devel
 sudo pip-3.4 install django
 sudo pip-3.4 install pycrypto
+sudo pip-3.4 install whoosh
 
 # finally, to run the server, use the aws_run_server.sh script in the root directory of the repo:
 #     > sh aws_run_server.sh
