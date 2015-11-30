@@ -53,4 +53,5 @@ class Message(models.Model):
     sentDate = models.DateTimeField(auto_now_add=True)
     display = models.BooleanField(default=True)
     encrypt = models.BooleanField(default=False)
+    read = models.BooleanField(default=False)
     
