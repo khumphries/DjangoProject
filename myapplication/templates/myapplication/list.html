@@ -39,6 +39,9 @@
                 <li>
                   <a href="{% url 'list' %}">Files</a>
                 </li>
+		<li>
+		  <a href="{% url 'search' %}">Search</a>
+                </li>                
                 <li>
                   <a href="{% url 'groups_creator' %}">Groups</a>
                 </li>
@@ -100,7 +103,7 @@
            
 
         {% if rgdct %}
-    	<p>Directories in {{dctCurr.stName}}:</p>
+     	<p>Directories in {{dctCurr.stName}}:</p>
             <ul>
             {% for dct in rgdct %}
 		<form action="{% url 'list' %}" method="post">

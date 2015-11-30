@@ -14,12 +14,14 @@ from myapplication.models import Dct
 from myapplication.models import Message
 from myapplication.models import Report
 from myapplication.models import Report_Group
+
 from myapplication.forms import DocumentForm
 from myapplication.forms import UserForm
 from myapplication.forms import MessageForm
 from myapplication.forms import CLIForm
 from myapplication.forms import GroupsForm
 from myapplication.forms import ReportForm
+from myapplication.forms import QueryForm
 
 from myapplication.forms import SiteManagerUserForm
 from myapplication.forms import SiteManagerGroupForm
@@ -29,6 +31,8 @@ from myapplication.shell import get_home_dct_from_user
 from myapplication.shell import pathFromDct
 
 from myapplication.encrypt_message import encrypt_msg, decrypt_msg
+
+from myapplication.search import make_search
 
 dctCurr = None
 fErrDisplayed = False
@@ -501,12 +505,6 @@ def outbox(request):
         return render(request, 'myapplication/auth.html')
 
 
-def get_all_available_reports(request):
-    user_group_dict = dict(request.user.groups.values_list(flat=True))
-    user_group_list = []
-    for value in user_group_dict.values():
-        user_group_list.append(value)
-    all_reports = Report.objects.filter(report_group__group__in=user_group_list)
 #Returns true if user is Site-Manager
 def is_SM(request):
     return request.user.groups.filter(name='Site_Managers').exists()
@@ -567,3 +565,21 @@ def post_request(request):
     #     {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'dctCurr' : dctCurr, 'path': pathFromDct(dctCurr)},
     #     context_instance=RequestContext(request)
     # )
+
+
+#TODO: MK: use something more unique than short description to identify reports
+# BRING THIS UP AT STANDUP ON MONDAY - WE NEED TO HAVE SOME CONSISTENT WAY OF FINDING A REPORT
+def search(request):
+    if 'queryText' in request.POST:
+        # we've already made a search, so do the work and return the results
+        resultsAsRep = make_search(request.POST['queryText'], request)
+    else:
+        resultsAsRep = None
+
+    queryForm = QueryForm()
+    
+    return render(
+        request,
+        'myapplication/search.html',
+        {'results' : resultsAsRep, 'queryForm': queryForm}
+        )

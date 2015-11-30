@@ -21,8 +21,6 @@ class ReportForm(forms.Form):
         self.fields['private'] = forms.BooleanField(label='Private', initial=False, required=False, help_text='Check to make the report private')
         self.fields['groups_list'] = forms.ChoiceField(label='Group', help_text='Select which groups can see this report.', choices=get_my_groups(self.user))
 
-
-
 class CLIForm(forms.Form):
         command = forms.CharField(label='Command', max_length=100, help_text='use standard UNIX file manipulation commands')
 
@@ -52,3 +50,5 @@ class SiteManagerGroupForm(forms.Form):
     CHOICES = (('1','Create group',),('2','Add user to group',),('3','Remove user from group',))
     choice_field = forms.ChoiceField(widget=forms.RadioSelect,choices=CHOICES)
 
+class QueryForm(forms.Form):
+	queryText = forms.CharField(label="Query:", max_length=100)
