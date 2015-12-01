@@ -587,9 +587,6 @@ def post_request(request):
     #     context_instance=RequestContext(request)
     # )
 
-
-#TODO: MK: use something more unique than short description to identify reports
-# BRING THIS UP AT STANDUP ON MONDAY - WE NEED TO HAVE SOME CONSISTENT WAY OF FINDING A REPORT
 def search(request):
     SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.user.is_authenticated():
@@ -605,6 +602,17 @@ def search(request):
             request,
             'myapplication/search.html',
             {'results' : resultsAsRep, 'queryForm': queryForm, 'SM' : SM}
+            )
+    else :
+        return render(request, 'myapplication/auth.html')
+
+def unix_help(request):
+    SM = request.user.groups.filter(name='Site_Managers').exists()
+    if request.user.is_authenticated():
+        return render(
+            request,
+            'myapplication/unix_help.html',
+            {'SM' : SM}
             )
     else :
         return render(request, 'myapplication/auth.html')
