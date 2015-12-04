@@ -17,7 +17,7 @@ class ReportForm(forms.Form):
         super(ReportForm, self).__init__(*args, **kwargs)
         self.fields['name'] = forms.CharField(label='Name', max_length=50)
         self.fields['shortDescription'] = forms.CharField(label='Short Description', max_length=50)
-        self.fields['detailedDescription'] = forms.CharField(label='Detailed Description', max_length=500)
+        self.fields['detailedDescription'] = forms.CharField(widget=forms.Textarea(attrs={'cols': 40, 'rows': 10}), label='Detailed Description', max_length=500)
         self.fields['private'] = forms.BooleanField(label='Private', initial=False, required=False, help_text='Check to make the report private')
         self.fields['groups_list'] = forms.ChoiceField(label='Group', help_text='Select which groups can see this report.', choices=get_my_groups(self.user))
 
