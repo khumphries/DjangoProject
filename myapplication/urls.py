@@ -23,4 +23,5 @@ urlpatterns = patterns('myapplication.views',
     url(r'^Site_manager_users/$', views.site_manager_users, name='Site_manager_users'),
     url(r'^Site_manager_groups/$', views.site_manager_groups, name='Site_manager_groups'),
     url(r'^post_request/$', 'post_request', name='post_request'),
+    url(r'^change_password/$', 'change_password', name='change_password'),
 )

@@ -53,3 +53,8 @@ class SiteManagerGroupForm(forms.Form):
 
 class QueryForm(forms.Form):
 	queryText = forms.CharField(label="Query:", max_length=100)
+
+class ChangePasswordForm(forms.Form):
+    old_password = forms.CharField(label='Current Password', max_length=30, widget=forms.PasswordInput)
+    new_password1 = forms.CharField(label='New Password', max_length=30, widget=forms.PasswordInput)
+    new_password2 = forms.CharField(label='New Password repeated', max_length=30, widget=forms.PasswordInput)

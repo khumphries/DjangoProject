@@ -22,6 +22,7 @@ from myapplication.forms import CLIForm
 from myapplication.forms import GroupsForm
 from myapplication.forms import ReportForm
 from myapplication.forms import QueryForm
+from myapplication.forms import ChangePasswordForm
 
 from myapplication.forms import SiteManagerUserForm
 from myapplication.forms import SiteManagerGroupForm
@@ -294,7 +295,29 @@ def sign_up_complete(request):
         return render(request, 'myapplication/sign_up_complete.html', {'SM':SM})
     else:
         return render(request, 'myapplication/auth.html')
-
+def change_password(request):
+    if request.user.is_authenticated():
+        SM = is_SM(request)
+        state = ''
+        if request.method == 'POST':
+            form = ChangePasswordForm(request.POST)
+            if form.is_valid():
+                if request.user.check_password(form.cleaned_data['old_password']):
+                    if form.cleaned_data['new_password1'] == form.cleaned_data['new_password2']:
+                        request.user.set_password(form.cleaned_data['new_password1'])
+                        request.user.save()
+                        user_authentication = authenticate(username=request.user.get_username(),password=form.cleaned_data['new_password1'])
+                        login(request, user_authentication)
+                        state = 'Password changed.'
+                    else:
+                        state = 'Passwords did not match'
+                else:
+                    state = 'Password incorrect.'
+        else:
+            form = ChangePasswordForm()
+        return render(request, 'myapplication/change_password.html', {'form':form,'SM':SM, 'state':state})
+    else:
+        return render(request, 'myapplication/auth.html')
 def login_user(request):
     state = "Please log in below..."
     username = password = ''
