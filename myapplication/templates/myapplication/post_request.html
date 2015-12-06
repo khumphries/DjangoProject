@@ -4,12 +4,23 @@ Short Description   : {{report.shortDescription}}
 Detailed Description: {{report.detailedDescription}}
 Date                : {{report.timeStamp}}
 Private             : {{report.private}}
+Documents:
 {% for document in documents %}
 {% if document.report == report %}
-Document:
+{{forloop.counter}}.)
 Location            : {{document.docfile}}
 SHA-2 Checksum      : {{document.dochash}}
 {% endif %}
 {% endfor %}
 ------------------------------------------
+{% endfor %}
+%^%-
+{% for report in reports %}
+{% for document in documents %}
+{% if document.report == report %}
+{{document.docfile}}%^%-
+{{document.content}}%^%-
+{% endif %}
+
+{% endfor %}
 {% endfor %}

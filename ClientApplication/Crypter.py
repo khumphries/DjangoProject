@@ -6,6 +6,8 @@ __author__ = 'divya'
 
 from Crypto.Cipher import ARC4
 import ast
+from Crypto.Hash import SHA256
+import binascii
 
 def encrypt_file(filename, key):
     """ Performs ARC4 Stream Cipher on inputted file using given symmetric key """
@@ -35,4 +37,13 @@ def decrypt_file(filename, key):
     g.write(decryptd)
     return True
 
-
+def hash_file(filename):
+    h = SHA256.new()
+    try:
+        f = open(filename, 'rb')
+    except:
+        print("File not Found")
+        return h.update(b'ERROR')
+    contents = f.read()
+    h.update(contents)
+    return h.hexdigest()
