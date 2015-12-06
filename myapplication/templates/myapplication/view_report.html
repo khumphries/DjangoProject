@@ -80,7 +80,11 @@
             <ul>
             {% for document in documents %}
                 <li>
+                  {% if not document.encrypt %}
                     <a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a>
+                  {% else %}
+                     Encrypted file: {{ document.docfile.name }}
+                  {% endif %}
                     <br>Hash: {{document.dochash}}</br>
                 </li>
             {% endfor %}

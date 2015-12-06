@@ -20,6 +20,7 @@ class ReportForm(forms.Form):
         self.fields['detailedDescription'] = forms.CharField(widget=forms.Textarea(attrs={'cols': 40, 'rows': 10}), label='Detailed Description', max_length=500)
         self.fields['private'] = forms.BooleanField(label='Private', initial=False, required=False, help_text='Check to make the report private')
         self.fields['groups_list'] = forms.ChoiceField(label='Group', help_text='Select which groups can see this report.', choices=get_my_groups(self.user))
+        self.fields['encrypt'] = forms.BooleanField(label='Encrypted', initial=False, required=False, help_text='Check if file(s) in report are encrypted')
 
 class CLIForm(forms.Form):
         command = forms.CharField(label='Command', max_length=100, help_text='use standard UNIX file manipulation commands')
