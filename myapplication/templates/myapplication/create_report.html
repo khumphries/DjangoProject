@@ -27,7 +27,7 @@
               e.preventDefault();
               if(x < max_fields){ //max input box allowed
                 x++; //text box increment
-            $(wrapper).append('<br><div><input type="file" name="file"/><a href="#" class="remove_field">Remove</a></div>'); //add input box
+            $(wrapper).append('<br><div><input type="file" name="file"/></div><a href="#" class="remove_field">Remove</a><br></div>'); //add input box
             }
           });
         
@@ -97,14 +97,16 @@
 	    <p>{{ reportform.shortDescription.label_tag}} {{reportform.shortDescription}}</p>
             <p>{{ reportform.detailedDescription.label_tag}}<br>{{reportform.detailedDescription}}</p>
             <p>{{ reportform.private.label_tag}} {{reportform.private}} {{reportform.private.help_text}}</p>
+            <p>{{ reportform.encrypt.label_tag}} {{reportform.encrypt}} {{reportform.encrypt.help_text}}</p>
             <p>{{ reportform.groups_list.label_tag}} {{reportform.groups_list}} {{reportform.groups_list.help_text}}</p>
             <br>
-            Upload File(s) --Can upload up to 5 files.
+            Upload File(s)
             <br><br>
             <div class="input_fields_wrap">
                 <button class="add_field_button">Add Another File</button>
-                <br>
+                <br><br>
                 <div><input type="file" name="file"/></div>
+                
             </div>
             <br>
             

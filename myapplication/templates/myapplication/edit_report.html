@@ -109,7 +109,12 @@
             <ul>
             {% for document in documents %}
                 <li>
+                    {% if not document.encrypt %}
                     <a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a>
+                    {% else %}
+                     Encrypted file: {{ document.docfile.name }}
+                    {% endif %}
+                    
                     <form action="{% url 'edit_report' %}" method="post">
                     {% csrf_token %}
                     <input type = "hidden" name = "reportID" value = "{{report.reportID}}"/>

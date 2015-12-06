@@ -125,12 +125,16 @@ def create_report(request):
                     newreport.save()
                     new_report_group.save()
 
+                
                 for f in request.FILES.getlist('file'):
                     h = SHA256.new()
                     contents = f.read()
                     h.update(contents)
                     s = bytes(h.hexdigest(), 'UTF-8')
-                    newdoc = Document(docfile = f, owner=request.user, report=newreport, dochash=h)
+                    if reportform.cleaned_data['encrypt'] == True:
+                        newdoc = Document(docfile = f, owner=request.user, report=newreport, dochash=s, encrypt=True)
+                    else:
+                        newdoc = Document(docfile = f, owner=request.user, report=newreport, dochash=s)
                     newdoc.save()
                 return HttpResponseRedirect(reverse('myapplication.views.list'))
 
