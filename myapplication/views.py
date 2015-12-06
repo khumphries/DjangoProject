@@ -124,7 +124,7 @@ def create_report(request):
                     h = SHA256.new()
                     contents = f.read()
                     h.update(contents)
-                    s = h.hexdigest()
+                    s = bytes(h.hexdigest(), 'UTF-8')
                     newdoc = Document(docfile = f, owner=request.user, report=newreport, dochash=h)
                     newdoc.save()
                 return HttpResponseRedirect(reverse('myapplication.views.list'))
@@ -565,46 +565,14 @@ def is_SM(request):
 # Create your views here.
 
 def post_request(request):
-    global dctCurr
-    global fErrDisplayed
-    global stErr
-    SM = request.user.groups.filter(name='Site_Managers').exists()    
-    if request.user.username not in mpuser_dctCurr:
-        mpuser_dctCurr[request.user.username] = get_home_dct_from_user(request.user)
-   # Handle file upload
-
-    if 'command' in request.POST:
-        cliform = CLIForm(request.POST)
-        if cliform.is_valid():
-            rgwrd = request.POST['command'].split(' ')
-            # parse commands
-            res = shell(rgwrd, request, mpuser_dctCurr[request.user.username])
-            if isinstance(res, str):
-                stErr = res
-                fErrDisplay = False
-            else:
-                mpuser_dctCurr[request.user.username] = res
-            return HttpResponseRedirect(reverse('myapplication.views.list'))
-       
-    else:
-        cliform = CLIForm()
-
-    # Load documents for the list page
-    reports = Report.objects.filter(dct=mpuser_dctCurr[request.user.username])
-    documents = Document.objects.all()
-    rgdct = Dct.objects.filter(dctParent=mpuser_dctCurr[request.user.username])
-
-    stErrDisplay = None
-
-    if not stErr == "" and not fErrDisplayed:
-        stErrDisplay = stErr
-        fErrDisplayed = True
-    # Render list page with the documents and the form
-    return render_to_response(
+    if request.method == 'GET':
+        reports = Report.objects.all()
+        documents = Document.objects.all()
+        return render_to_response(
         'myapplication/post_request.html',
-        {'documents': documents, 'reports': reports, 'rgdct': rgdct, 'cliform': cliform, 'dctCurr' : mpuser_dctCurr[request.user.username], 'path': pathFromDct(mpuser_dctCurr[request.user.username]), 'stErr' : stErrDisplay,'SM':SM},
+        {'reports':reports, 'documents':documents},
         context_instance=RequestContext(request)
-    )
+        )
 
 
 

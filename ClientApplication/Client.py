@@ -4,16 +4,19 @@ import Crypter
 import sys
 import requests
 from os import chdir
+import urllib
 
 
-comList = ["encrypt", "decrypt", "reports", "exit"];
+comList = ["encrypt", "decrypt", "reports", "hash", "download", "exit"];
 argv = []
 
 def reports():
     # query reports
     print("Reports: ")
-    r = requests.get("http://127.0.0.1:8000/post_request/", params = {})
-    print (r.text)
+    r = requests.get("http://127.0.0.1:8000/post_request/")
+    #r = urllib.request.urlopen("http://127.0.0.1:8000/post_request/", params = {user.username = "hatpat"})
+    #print(str(r.read()))
+    print(r.text)
 
 def encrypt():
     # encrypt file
@@ -56,10 +59,15 @@ def main():
         encrypt();
     elif argv[0] == "decrypt":
         decrypt();
-    elif argv[0] == "exit":
-        xit = True;
+    elif argv[0] == "hash":
+        hash();
+    elif argv[0] == "download":
+        download();
     elif argv[0] == "help":
         help();
+    elif argv[0] == "exit":
+        xit = True;
+
 
 if __name__ == "__main__":
     argv = sys.argv[1:]
