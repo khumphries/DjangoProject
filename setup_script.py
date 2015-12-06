@@ -1,10 +1,12 @@
 from django.contrib.auth.models import User, Group, Permission
-from myapplication.models import Dct
+from myapplication.models import Dct, Questions
 
 user = User.objects.create_user(username='Site_Manager', password='administrator')
 site_manager_group = Group.objects.create(name='Site_Managers')
 public_group = Group.objects.create(name='public')
 private_group = Group.objects.create(name='Site_Manager_private')
+SQ = Questions(securityowner=user,Q1='admin',Q2='admin',Q3='admin')
+SQ.save()
 home_dct = Dct(stName='Site_Manager', owner=user)
 user.groups.add(site_manager_group,public_group,private_group)
 user.save()

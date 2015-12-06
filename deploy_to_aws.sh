@@ -31,5 +31,7 @@ sudo pip-3.4 install django
 sudo pip-3.4 install pycrypto
 sudo pip-3.4 install whoosh
 
+# Then run the clean_application.sh to get a fresh database and user Site_Manager with default password administrator
+
 # finally, to run the server, use the aws_run_server.sh script in the root directory of the repo:
 #     > sh aws_run_server.sh

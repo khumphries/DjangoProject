@@ -72,9 +72,19 @@
 		<form action="{% url 'sign_up' %}" method="post">
     		{% csrf_token %}
     		<p>{{form.username.label_tag}} {{ form.username }}</p>
-    		
     		<p>{{form.password.label_tag}} {{ form.password }}</p>
-    		<input type="submit" value="Submit" />
+        <p>{{form.email.label_tag}} {{form.email}}
+        <p>*Email not required but necessary for recovering forgotten passwords.</p>
+        <br>
+        <p>Answer the security questions below.</p>
+        <p>{{securityForm.Q1.label_tag}} </p>
+        <p>{{ securityForm.Q1 }}</p>
+        <p>{{securityForm.Q2.label_tag}} </p>
+        <p>{{ securityForm.Q2 }}</p>
+        <p>{{securityForm.Q3.label_tag}} </p>
+        <p>{{ securityForm.Q3 }}</p>
+
+    		<input type="submit" value="Sign Up" />
 		</form>
 
 		<p>Your user name can be no greater than 30 characters.</p>

@@ -1,9 +1,12 @@
 from django.shortcuts import render
 
+from django.conf import settings
+
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth import authenticate, login
@@ -14,6 +17,7 @@ from myapplication.models import Dct
 from myapplication.models import Message
 from myapplication.models import Report
 from myapplication.models import Report_Group
+from myapplication.models import Questions
 
 from myapplication.forms import DocumentForm
 from myapplication.forms import UserForm
@@ -23,6 +27,8 @@ from myapplication.forms import GroupsForm
 from myapplication.forms import ReportForm
 from myapplication.forms import QueryForm
 from myapplication.forms import ChangePasswordForm
+from myapplication.forms import SecurityQuestionForm
+from myapplication.forms import UsernameForm
 
 from myapplication.forms import SiteManagerUserForm
 from myapplication.forms import SiteManagerGroupForm
@@ -107,7 +113,6 @@ def create_report(request):
                         newreport.report_group_set.add(new_report_group)
                         newreport.save()
                         new_report_group.save()
-                        #print(newreport.groups_list)
                     else :
                         private_report_group_name = request.user.get_username() + '_private'
                         new_report_group = Report_Group(group=private_report_group_name)
@@ -272,32 +277,42 @@ def sign_up(request):
     state = 'Please sign up below'
     if request.method == 'POST':
         form = UserForm(request.POST)
+        securityForm=SecurityQuestionForm(request.POST)
         #checks if data is valid and then 
         if form.is_valid():
-            if User.objects.filter(username=form.cleaned_data['username']).exists():
-                state = "That user name is already taken, please try another."
-            else:
-                user = User.objects.create_user(form.cleaned_data['username'],'',form.cleaned_data['password'])
-                group = Group.objects.get(name='public')
-                private_group_name = form.cleaned_data['username'] + '_private'
-                private_group = Group.objects.create(name=private_group_name)
-                user.groups.add(group)
-                user.groups.add(private_group)
-                private_group.save()
-                group.save()
-                user.save()
-                home_dct = Dct(stName=form.cleaned_data['username'], owner=user)
-                home_dct.save()
-                user_authentication = authenticate(username=form.cleaned_data['username'],password=form.cleaned_data['password'])
-                login(request, user_authentication)
-                return HttpResponseRedirect(reverse('myapplication.views.home_page'))
+            if securityForm.is_valid():
+                if User.objects.filter(username=form.cleaned_data['username']).exists():
+                    state = "That user name is already taken, please try another."
+                else:
+                    user = User.objects.create_user(form.cleaned_data['username'],'',form.cleaned_data['password'])
+                    user.email = form.cleaned_data['email']
+                    group = Group.objects.get(name='public')
+                    private_group_name = form.cleaned_data['username'] + '_private'
+                    private_group = Group.objects.create(name=private_group_name)
+                    user.groups.add(group)
+                    user.groups.add(private_group)
+                    private_group.save()
+                    group.save()
+                    user.save()
+                    SQ = Questions(securityowner=user,Q1=securityForm.cleaned_data['Q1'].lower(),Q2=securityForm.cleaned_data['Q2'].lower(),Q3=securityForm.cleaned_data['Q3'].lower())
+                    SQ.save()
+                    user.save()
+                    home_dct = Dct(stName=form.cleaned_data['username'], owner=user)
+                    home_dct.save()
+                    user_authentication = authenticate(username=form.cleaned_data['username'],password=form.cleaned_data['password'])
+                    login(request, user_authentication)
+
+
+                    return HttpResponseRedirect(reverse('myapplication.views.home_page'))
+            else :
+                state = 'Please fill out all fields.'
         else :
             state = 'Please fill out all fields.'
     else:
         form = UserForm()
+        securityForm = SecurityQuestionForm()
     SM = request.user.groups.filter(name='Site_Managers').exists()
-
-    return render(request,'myapplication/sign_up.html', {'form' : form, 'state' : state,'SM':SM})
+    return render(request,'myapplication/sign_up.html', {'form' : form, 'state' : state,'SM':SM, 'securityForm':securityForm})
 #For page after sign up
 def sign_up_complete(request):
     SM = request.user.groups.filter(name='Site_Managers').exists()
@@ -311,23 +326,60 @@ def change_password(request):
         state = ''
         if request.method == 'POST':
             form = ChangePasswordForm(request.POST)
+            securityForm = SecurityQuestionForm(request.POST)
             if form.is_valid():
-                if request.user.check_password(form.cleaned_data['old_password']):
-                    if form.cleaned_data['new_password1'] == form.cleaned_data['new_password2']:
-                        request.user.set_password(form.cleaned_data['new_password1'])
-                        request.user.save()
-                        user_authentication = authenticate(username=request.user.get_username(),password=form.cleaned_data['new_password1'])
-                        login(request, user_authentication)
-                        state = 'Password changed.'
+                if securityForm.is_valid():
+                    if request.user.check_password(form.cleaned_data['old_password']):
+                        if form.cleaned_data['new_password1'] == form.cleaned_data['new_password2']:
+                            SQ = Questions.objects.get(securityowner=request.user)
+                            if getattr(SQ,'Q1') == securityForm.cleaned_data['Q1'] and getattr(SQ,'Q2') == securityForm.cleaned_data['Q2'] and getattr(SQ,'Q3') == securityForm.cleaned_data['Q3']:
+                                request.user.set_password(form.cleaned_data['new_password1'])
+                                request.user.save()
+                                user_authentication = authenticate(username=request.user.get_username(),password=form.cleaned_data['new_password1'])
+                                login(request, user_authentication)
+                                #state = 'Password changed.'
+                                return HttpResponseRedirect(reverse('myapplication.views.change_password'))
+                            else:
+                                state = 'At least on security question incorrect'
+                        else:
+                            state = 'Passwords did not match'
                     else:
-                        state = 'Passwords did not match'
+                        state = 'Password incorrect.'
                 else:
-                    state = 'Password incorrect.'
+                    state = 'Please fill out all the fields'
+            else:
+                state = 'Please fill out all the fields'
         else:
             form = ChangePasswordForm()
-        return render(request, 'myapplication/change_password.html', {'form':form,'SM':SM, 'state':state})
+            securityForm = SecurityQuestionForm()
+        return render(request, 'myapplication/change_password.html', {'form':form,'SM':SM, 'state':state, 'securityForm':securityForm})
     else:
         return render(request, 'myapplication/auth.html')
+
+def forgot_password(request):
+    state = 'Type your username below, if you did not give an email at sign up this will not work.'
+    if request.method == 'POST':
+        form = UsernameForm(request.POST)
+        if form.is_valid(): 
+            if User.objects.filter(username=form.cleaned_data['username']).exists():
+                user = User.objects.get(username=form.cleaned_data['username'])
+                user_email = user.email
+                print(user_email)
+                if user_email == '':
+                    state = 'We have no email on record for you.'
+                else:
+                    user.set_password('temp')
+                    send_mail('Forgotten password.','The temporary password is "temp".', settings.EMAIL_HOST_USER, [user_email], fail_silently=False)
+                    state = 'Email sent.'
+                    user.save()
+            else:
+                state='That user does not exist.'
+        else:
+            state = 'Plese fill out the field.'
+    else:
+        form = UsernameForm()
+    return render(request, 'myapplication/forgot_password.html', {'state':state, 'form':form})
+
 def login_user(request):
     state = "Please log in below..."
     username = password = ''
