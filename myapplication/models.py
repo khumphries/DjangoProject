@@ -55,4 +55,11 @@ class Message(models.Model):
     display = models.BooleanField(default=True)
     encrypt = models.BooleanField(default=False)
     read = models.BooleanField(default=False)
+
+class Questions(models.Model):
+    securityowner = models.ForeignKey(User, related_name='securityowner')
+    Q1 = models.CharField(max_length=30)
+    Q2 = models.CharField(max_length=30)
+    Q3 = models.CharField(max_length=30)
+
     

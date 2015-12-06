@@ -25,8 +25,17 @@ class CLIForm(forms.Form):
         command = forms.CharField(label='Command', max_length=100, help_text='use standard UNIX file manipulation commands')
 
 class UserForm(forms.Form):
-        username = forms.CharField(label='User Name', max_length=30)
-        password = forms.CharField(label='Password', max_length=30, widget=forms.PasswordInput)
+    username = forms.CharField(label='User Name', max_length=30)
+    password = forms.CharField(label='Password', max_length=30, widget=forms.PasswordInput)
+    email = forms.EmailField(label='Email', required=False)
+
+class UsernameForm(forms.Form):
+    username = forms.CharField(label='User Name', max_length=30)
+
+class SecurityQuestionForm(forms.Form):
+    Q1 = forms.CharField(label='What is the first name of you best friend?', max_length=30)
+    Q2 = forms.CharField(label='What is the name of the street you grew up on?', max_length=30)
+    Q3 = forms.CharField(label='What year did/will you start High School?', max_length=30)
 
 class GroupsForm(forms.Form):
     username = forms.CharField(label='User Name', max_length=30, required=False)
