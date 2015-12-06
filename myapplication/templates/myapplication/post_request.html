@@ -1,6 +1,15 @@
 {% for report in reports %}
-{{report.shortDescription}}
-{{report.detailedDescription}}
-{{report.timeStamp}}
-{{report.private}}
+Name                : {{report.name}}
+Short Description   : {{report.shortDescription}}
+Detailed Description: {{report.detailedDescription}}
+Date                : {{report.timeStamp}}
+Private             : {{report.private}}
+{% for document in documents %}
+{% if document.report == report %}
+Document:
+Location            : {{document.docfile}}
+SHA-2 Checksum      : {{document.dochash}}
+{% endif %}
+{% endfor %}
+------------------------------------------
 {% endfor %}
