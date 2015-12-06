@@ -131,7 +131,8 @@ def create_report(request):
                     contents = f.read()
                     h.update(contents)
                     s = bytes(h.hexdigest(), 'UTF-8')
-                    if reportform.cleaned_data['encrypt'] == True:
+                    encrypt = f.name[-4:]
+                    if encrypt == '.enc':
                         newdoc = Document(docfile = f, owner=request.user, report=newreport, dochash=s, encrypt=True)
                     else:
                         newdoc = Document(docfile = f, owner=request.user, report=newreport, dochash=s)
