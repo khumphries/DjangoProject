@@ -113,16 +113,17 @@
                     <form action="{% url 'edit_report' %}" method="post">
                     {% csrf_token %}
                     <input type = "hidden" name = "reportID" value = "{{report.reportID}}"/>
-                    <input type="hidden" name="docfile" value="{{ document.docfile }}" />               
+                    <input type="hidden" name="docfile" value="{{ document.docfile }}" />  
+                    Hash: {{document.dochash}} <br>  
                     <input type="submit" name = 'delete' value="Delete Document" />
-                    </form>
+                    </form> <br>
                 </li>
             {% endfor %}
             </ul>
         {% else %}
         No Documents currently in Report.
         {% endif %}
-        <br><br><br>
+        <br>
 
         <form action="{% url 'edit_report' %}" method="post" enctype="multipart/form-data">
           {% csrf_token %}

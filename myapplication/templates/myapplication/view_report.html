@@ -81,6 +81,7 @@
             {% for document in documents %}
                 <li>
                     <a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a>
+                    <br>Hash: {{document.dochash}}</br>
                 </li>
             {% endfor %}
             </ul>

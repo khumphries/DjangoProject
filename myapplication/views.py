@@ -41,6 +41,8 @@ from myapplication.encrypt_message import encrypt_msg, decrypt_msg
 
 from myapplication.search import make_search
 
+from Crypto.Hash import SHA256
+
 mpuser_dctCurr = {}
 fErrDisplayed = False
 stErr = ""
@@ -124,7 +126,11 @@ def create_report(request):
                     new_report_group.save()
 
                 for f in request.FILES.getlist('file'):
-                    newdoc = Document(docfile = f, owner=request.user, report=newreport)
+                    h = SHA256.new()
+                    contents = f.read()
+                    h.update(contents)
+                    s = h.hexdigest()
+                    newdoc = Document(docfile = f, owner=request.user, report=newreport, dochash=h)
                     newdoc.save()
                 return HttpResponseRedirect(reverse('myapplication.views.list'))
 
@@ -193,7 +199,11 @@ def edit_report(request):
 
             if 'uploadFiles' in request.POST:
                 for f in request.FILES.getlist('file'):
-                    newdoc = Document(docfile = f, owner=request.user, report=report)
+                    h = SHA256.new()
+                    contents = f.read()
+                    h.update(contents)
+                    s = bytes(h.hexdigest(), 'UTF-8')
+                    newdoc = Document(docfile = f, owner=request.user, report=report, dochash=s)
                     newdoc.save()
                 return HttpResponseRedirect(reverse('myapplication.views.list'))
 
