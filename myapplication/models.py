@@ -45,6 +45,7 @@ class Document(models.Model):
     owner = models.ForeignKey(User, null=True)
     report = models.ForeignKey(Report, null=True)
     dochash = models.BinaryField(null=True)
+    content = models.BinaryField(null=True)
     encrypt = models.BooleanField(default=False)
 
 class Message(models.Model):

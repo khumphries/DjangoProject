@@ -10,6 +10,7 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
+from django.core.files import File
 from django.http import HttpResponse
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth import authenticate, login
@@ -46,6 +47,9 @@ from myapplication.encrypt_message import encrypt_msg, decrypt_msg
 from myapplication.search import make_search
 
 from Crypto.Hash import SHA256
+
+import base64
+import os
 
 mpuser_dctCurr = {}
 fErrDisplayed = False
@@ -135,12 +139,14 @@ def create_report(request):
                     contents = f.read()
                     h.update(contents)
                     s = bytes(h.hexdigest(), 'UTF-8')
+                    contents = base64.b64encode(contents)
                     encrypt = f.name[-4:]
                     if encrypt == '.enc':
-                        newdoc = Document(docfile = f, owner=request.user, report=newreport, dochash=s, encrypt=True)
+                        newdoc = Document(docfile = f, owner=request.user, report=newreport, dochash=s, encrypt=True, content=contents)
                     else:
-                        newdoc = Document(docfile = f, owner=request.user, report=newreport, dochash=s)
+                        newdoc = Document(docfile = f, owner=request.user, report=newreport, dochash=s, content=contents)
                     newdoc.save()
+                    print(contents)
                 return HttpResponseRedirect(reverse('myapplication.views.list'))
 
             else:
@@ -212,7 +218,8 @@ def edit_report(request):
                     contents = f.read()
                     h.update(contents)
                     s = bytes(h.hexdigest(), 'UTF-8')
-                    newdoc = Document(docfile = f, owner=request.user, report=report, dochash=s)
+                    contents = base64.b64encode(contents)
+                    newdoc = Document(docfile = f, owner=request.user, report=report, dochash=s, content=contents)
                     newdoc.save()
                 return HttpResponseRedirect(reverse('myapplication.views.list'))
 
