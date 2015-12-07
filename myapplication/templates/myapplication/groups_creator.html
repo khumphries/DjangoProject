@@ -79,17 +79,22 @@
         <br>
         </br>
         {{ state }}
+        <div class = "container">
+        <div class = "well">
         <form action="{% url 'groups_creator' %}" method="post">
             {% csrf_token %}
             <p>{{form.groupname.label_tag}} {{ form.groupname }}</p>
             
             <p>{{form.username.label_tag}} {{ form.username }}</p>
             <p>{{form.choice_field}}</p>
-            <input type="submit" value="Submit" />
+            </div>
+            <input type="submit" class="btn btn-primary"/>
         </form>
-
+        <br>
+        <br>
         <p>The groupname can be no longer than 80 characters.</p>
         <p>The username can be no longer than 30 characters.</p>
+        </div>
     </body>
 </html>
 

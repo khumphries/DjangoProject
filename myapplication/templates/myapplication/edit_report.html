@@ -101,7 +101,7 @@
         </br>
         <br>
         </br>
-
+      <div class = container>
       <form action="{% url 'edit_report' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         Short Description: <input type = "text" name = "shortDescription" value = "{{report.shortDescription}}"/> <br>
@@ -111,7 +111,7 @@
         <br><br>
 
         <input type = "hidden" name = "reportID" value = "{{report.reportID}}"/>
-        <input type = "submit" name = "updateReport" value = "Update Report Information"/>
+        <input type = "submit" class = "btn btn-default" name = "updateReport" value = "Update Report Information"/>
         <br><br></form>
 
         <!-- List of uploaded documents -->
@@ -151,8 +151,11 @@
             <br>
 
           <input type = "hidden" name = "reportID" value = "{{report.reportID}}"/>
-          <input type = "submit" name = "uploadFiles" value = "Add Files to Report"/>
+          <input type = "submit" class = "btn btn-default" name = "uploadFiles" value = "Add Files to Report"/>
         <br><br></form>
+        <a href="{% url 'list' %}" class="btn btn-danger">Back</a>
+
+        </div>
     </body>
 </html>
 

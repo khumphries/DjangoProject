@@ -78,17 +78,34 @@
         </div>
         <br>
         </br>
-        <p><a href="{% url 'list' %}">Click here to view the files.</a></p><br>
+
+        <div class="container">
+        <div class="well">
+        <a href="{% url 'list' %}" class="btn btn-default">View the files.</a>
+
+        </div>
+        <div class="well">
         <p> You have {{unread}} new messages.
-        <p><a href="{% url 'messages' %}">Click here to view and send messages.</a></p><br>
-        <p><a href="{% url 'groups_creator' %}">Groups</a></p>
-        <p><a href="{% url 'groups' %}">Group list</a></p>
-        <p><a href="{% url 'change_password' %}">Password Change</a></p>
+        <p>
+        <a href="{% url 'messages' %}" class="btn btn-default">View and send messages.</a>
+        </p>
+        </div>
+        <div class="well">
+        <a href="{% url 'groups_creator' %}" class="btn btn-default">Groups</a>
+        </div>
+        <div class="well">
+        <a href="{% url 'groups' %}" class="btn btn-default">Groups List</a>        </div>
+        <div class="well">
+        <a href="{% url 'change_password' %}" class="btn btn-default">Change Password</a>
         {%if SM %}
+        </div>
+        <div class="well">
         <p><a href="{% url 'Site_manager' %}">Site Manager</a></p>
         {%endif%}
 
-
+        </div>
+        <a href="https://twitter.com/intent/tweet?screen_name=SecureWitnessShare&text=SecureWitnessShare%20is%20awesome!%20It%20let's%20me%20share%20my%20documents%20and%20files%20securely%20to%20whom%20I%20want%2C%20when%20I%20want." class="twitter-mention-button" data-related="SecureWitnessShare">Tweet to @SecureWitnessShare</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
     </body>
 </html>
 

@@ -78,40 +78,45 @@
         </br>
         <br>
         </br>
-      <p>Current directory: {{path}}</p>
-
+      <div class = "container">
+      <div class = "well">
+      <p><h4>Current directory: {{path}}</h4></p>
+      </div>
         {% if reports %}
-            <p>Reports in {{dctCurr.stName}}:</p>
+            <div class = "well">
+            <p><h4>Reports in {{dctCurr.stName}}:</h4></p>
             <ul>
+            </div>
             {% for report in reports %}
-                <li>
-		  {{report.name}}
+                <div class = "well">
+		            <h3>{{report.name}}</h3>
                     <br>
                 <form action="{% url 'view_report' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="shortDescription" value="{{ report.shortDescription }}" />
                     <input type="hidden" name="dateCreated" value="{{ report.timeStamp }}" />
-                    <input type="submit" value="View Files in Report" />
+                    <input type="submit" class = "btn btn-default" value="View Files in Report" />
                 </form>
                 <br>
                 <form action="{% url 'edit_report' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="shortDescription" value="{{ report.shortDescription }}" />
                     <input type="hidden" name="reportID" value="{{ report.reportID }}" />
-                    <input type="submit" value="Edit Report" />
+                    <input type="submit" class = "btn btn-default" value="Edit Report" />
                 </form>
                 <br><br>
-                </li>
+                </div>
+
             {% endfor %}
             </ul>
         {% endif %}
-
+      <div class = "well">
 	    <form action="{% url 'list' %}" method="post">
               {% csrf_token %}
               <input type="hidden" name="command" value="cd .." />
-              <input type="submit" value="Go to parent directory" />
+              <input type="submit" class = "btn btn-default btn-xs" value="Go to parent directory" />
             </form>
-           
+           <br>
 
         {% if rgdct %}
      	<p>Directories in {{dctCurr.stName}}:</p>
@@ -138,7 +143,9 @@
     	    <p>{{stErr}}<p>
     	{% endif %}
 
-        <p><a href="{% url 'create_report' %}">Create a Report</a></p>
+      <a href="{% url 'create_report' %}" class="btn btn-primary">Create a Report</a>        
+      </div>
+      </div>
     </body>
 </html>
 
