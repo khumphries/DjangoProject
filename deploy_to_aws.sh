@@ -33,5 +33,7 @@ sudo pip-3.4 install whoosh
 
 # Then run the clean_application.sh to get a fresh database and user Site_Manager with default password administrator
 
+sh clean_application.sh
+
 # finally, to run the server, use the aws_run_server.sh script in the root directory of the repo:
 #     > sh aws_run_server.sh
