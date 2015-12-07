@@ -33,6 +33,9 @@ class UserForm(forms.Form):
 class UsernameForm(forms.Form):
     username = forms.CharField(label='User Name', max_length=30)
 
+class EmailForm(forms.Form):
+    email = forms.EmailField(label='Email')
+
 class SecurityQuestionForm(forms.Form):
     Q1 = forms.CharField(label='What is the first name of you best friend?', max_length=30)
     Q2 = forms.CharField(label='What is the name of the street you grew up on?', max_length=30)

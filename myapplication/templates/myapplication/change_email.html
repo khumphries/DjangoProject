@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="https://bootswatch.com/cyborg/bootstrap.min.css">
 <html>
     <head>
-        <title>Home</title>
+        <title>Add Email</title>
         <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
         <style>
             body{
@@ -11,7 +11,6 @@
             font-size: 12px;
             }
         </style>
-        <p style="font-size:20px">Welcome to secureshare/witness.</p>
 
     </head>
     <body>
@@ -50,6 +49,15 @@
                 <li>
                   <a href="{% url 'groups' %}">Groups List</a>
                 </li>
+                <li class="dropdown">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="{% url 'change_password' %}" id="download">Account <span class="caret"></span></a>
+                    <ul class="dropdown-menu" aria-labelledby="download">
+                      <li><a href="{% url 'change_password' %}">Change Password</a></li>
+                      <li class="divider"></li>
+                      <li><a href="{% url 'change_email' %}">Change Email</a></li>
+
+                    </ul>
+                </li>
 
                 {%if SM %}
                     <li>
@@ -67,17 +75,21 @@
         </div>
         <br>
         </br>
-        <p>Too change your password type your old password in followed by the new one.</p><br>
+        <br>
+        <br>
         {{ state }}
-    <form action="{% url 'change_password' %}" method="post">
-        {% csrf_token %}
-        <p>{{form.old_password.label_tag}} {{ form.old_password }}</p>
-        <p>{{form.new_password1.label_tag}} {{ form.new_password1 }}</p>
-        <p>{{form.new_password2.label_tag}} {{ form.new_password2 }}</p>
-        <input type="submit" value="Submit" />
-    </form>
-
-
+        <form action="{% url 'change_email' %}" method="post">
+          {% csrf_token %}
+          <p>{{form.email.label_tag}} {{form.email}}</p>
+          <p>Answer the security questions below.</p>
+        <p>{{securityForm.Q1.label_tag}} </p>
+        <p>{{ securityForm.Q1 }}</p>
+        <p>{{securityForm.Q2.label_tag}} </p>
+        <p>{{ securityForm.Q2 }}</p>
+        <p>{{securityForm.Q3.label_tag}} </p>
+        <p>{{ securityForm.Q3 }}</p>
+          <input type="submit" value="Set Email" />
+        </form>
     </body>
 </html>
 

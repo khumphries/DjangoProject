@@ -26,4 +26,5 @@ urlpatterns = patterns('myapplication.views',
     url(r'^change_password/$', views.change_password, name='change_password'),
     url(r'^unix_help/$', views.unix_help, name='unix_help'),
     url(r'^forgot_password/$', views.forgot_password, name='forgot_password'),
+    url(r'^change_email/$', views.change_email, name='change_email'),
 )

@@ -2,6 +2,9 @@ from django.shortcuts import render
 
 from django.conf import settings
 
+import string
+import random
+
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
@@ -29,6 +32,7 @@ from myapplication.forms import QueryForm
 from myapplication.forms import ChangePasswordForm
 from myapplication.forms import SecurityQuestionForm
 from myapplication.forms import UsernameForm
+from myapplication.forms import EmailForm
 
 from myapplication.forms import SiteManagerUserForm
 from myapplication.forms import SiteManagerGroupForm
@@ -319,6 +323,33 @@ def sign_up(request):
     SM = request.user.groups.filter(name='Site_Managers').exists()
     return render(request,'myapplication/sign_up.html', {'form' : form, 'state' : state,'SM':SM, 'securityForm':securityForm})
 #For page after sign up
+
+def change_email(request):
+    SM = request.user.groups.filter(name='Site_Managers').exists()
+    if request.user.is_authenticated():
+        state = 'Type a valid email that you want to replace your current email.'
+        if request.method == 'POST':
+            form = EmailForm(request.POST)
+            securityForm = SecurityQuestionForm(request.POST)
+            if form.is_valid():
+                if securityForm.is_valid():
+                    SQ = Questions.objects.get(securityowner=request.user)
+                    if getattr(SQ,'Q1') == securityForm.cleaned_data['Q1'] and getattr(SQ,'Q2') == securityForm.cleaned_data['Q2'] and getattr(SQ,'Q3') == securityForm.cleaned_data['Q3']:
+                        request.user.email = form.cleaned_data['email']
+                        state = 'Email changed to ' + form.cleaned_data['email']
+                        request.user.save()
+                    else:
+                        state = 'Atleast one question was not answered correctly.'
+                else:
+                    state = 'Please answer the security questions.'
+            else:
+                state = 'Please put a viable email in the box.'
+        else:
+            form = EmailForm()
+            securityForm = SecurityQuestionForm()
+        return render(request, 'myapplication/change_email.html', {'state':state, 'SM':SM, 'form':form, 'securityForm':securityForm})
+    else:
+        return render(request, 'myapplication/auth.html')
 def sign_up_complete(request):
     SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.user.is_authenticated():
@@ -373,8 +404,9 @@ def forgot_password(request):
                 if user_email == '':
                     state = 'We have no email on record for you.'
                 else:
-                    user.set_password('temp')
-                    send_mail('Forgotten password.','The temporary password is "temp".', settings.EMAIL_HOST_USER, [user_email], fail_silently=False)
+                    temp_pass=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
+                    user.set_password(temp_pass)
+                    send_mail('Forgotten password.','The temporary password is "' + temp_pass + '".', settings.EMAIL_HOST_USER, [user_email], fail_silently=False)
                     state = 'Email sent.'
                     user.save()
             else:
