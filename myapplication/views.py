@@ -22,6 +22,7 @@ from myapplication.models import Message
 from myapplication.models import Report
 from myapplication.models import Report_Group
 from myapplication.models import Questions
+from myapplication.models import Verification
 
 from myapplication.forms import DocumentForm
 from myapplication.forms import UserForm
@@ -34,6 +35,7 @@ from myapplication.forms import ChangePasswordForm
 from myapplication.forms import SecurityQuestionForm
 from myapplication.forms import UsernameForm
 from myapplication.forms import EmailForm
+from myapplication.forms import VerificationForm
 
 from myapplication.forms import SiteManagerUserForm
 from myapplication.forms import SiteManagerGroupForm
@@ -112,6 +114,7 @@ def create_report(request):
                 newreport = Report(name = reportform.cleaned_data['name'], shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user, dct=mpuser_dctCurr[request.user.username])
                 newreport.save()
                 site_manager_report_group = Report_Group(group='Site_Managers')
+                site_manager_report_group.save()
                 newreport.report_group_set.add(site_manager_report_group)
 
                 #Adding code to give permissions based on group selected
@@ -131,7 +134,7 @@ def create_report(request):
                     public_report_group = Report_Group(group='public')
                     newreport.report_group_set.add(public_report_group)
                     newreport.save()
-                    new_report_group.save()
+                    public_report_group.save()
 
                 
                 for f in request.FILES.getlist('file'):
@@ -383,7 +386,7 @@ def change_password(request):
                                 #state = 'Password changed.'
                                 return HttpResponseRedirect(reverse('myapplication.views.change_password'))
                             else:
-                                state = 'At least on security question incorrect'
+                                state = 'At least one security question incorrect'
                         else:
                             state = 'Passwords did not match'
                     else:
@@ -411,7 +414,7 @@ def forgot_password(request):
                 if user_email == '':
                     state = 'We have no email on record for you.'
                 else:
-                    temp_pass=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
+                    temp_pass=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(20))
                     user.set_password(temp_pass)
                     send_mail('Forgotten password.','The temporary password is "' + temp_pass + '".', settings.EMAIL_HOST_USER, [user_email], fail_silently=False)
                     state = 'Email sent.'
@@ -452,6 +455,20 @@ def home_page(request):
         return render_to_response('myapplication/home.html', {'SM':SM, 'unread':unread})
     else:
         return render(request, 'myapplication/auth.html')
+def send_email(request):
+    if request.user.is_authenticated():
+        state=''
+        questionForm=SecurityQuestionForm()
+        vForm = VerificationForm()
+        SM = request.user.groups.filter(name='Site_Managers').exists()
+        user_email = request.user.email
+        temp_code=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(20))
+        send_mail('Forgotten password.','The verification code is "' + temp_code + '".', settings.EMAIL_HOST_USER, [user_email], fail_silently=False)
+        vcode = Verification(vowner=request.user,key=temp_code)
+        vcode.save()
+        return render(request, 'myapplication/change_questions.html',{'SM':SM, 'state':state, 'questionForm':questionForm, 'vForm':vForm})
+    else:
+        return render(request, 'myapplication/auth.html')
 def site_manager(request):
     SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.user.is_authenticated():
@@ -459,6 +476,44 @@ def site_manager(request):
             return render(request, 'myapplication/Site_manager.html',{'SM':SM})
         else:
             return render(request, 'myapplication/home.html',{'SM':SM})
+    return render(request, 'myapplication/auth.html')
+def change_questions(request):
+    SM = request.user.groups.filter(name='Site_Managers').exists()
+    if request.user.is_authenticated():
+            state = ''
+            if request.method == 'POST':
+                if 'sendmail' in request.POST:
+                    if request.user.email == '':
+                        state = 'You need an email tied to your account.'
+                    else:
+                        return HttpResponseRedirect(reverse('myapplication.views.send_email'))
+                questionForm=SecurityQuestionForm(request.POST)
+                vForm=VerificationForm(request.POST)
+                if 'changequestions' in request.POST:
+                    if questionForm.is_valid():
+                        if vForm.is_valid():
+                            if Verification.objects.filter(vowner=request.user).exists():
+                                vcode = Verification.objects.get(vowner=request.user)
+                                if getattr(vcode, 'key') == vForm.cleaned_data['vcode']:
+                                    SQ = Questions.objects.get(securityowner=request.user)
+                                    SQ.Q1=questionForm.cleaned_data['Q1']
+                                    SQ.Q2=questionForm.cleaned_data['Q2']
+                                    SQ.Q3=questionForm.cleaned_data['Q3']
+                                    SQ.save()
+                                    vcode.delete()
+                                    state = 'Security Questions changed.'
+                                else:
+                                    state = 'That code was incorrect.'
+                            else:
+                                state = 'You need to get the verification code through email.'
+                        else:
+                            state='Please enter the verification code from the email.'
+                    else :
+                        state= 'Please fill out all the questions.'
+            else:
+                questionForm=SecurityQuestionForm()
+                vForm=VerificationForm()
+            return render(request, 'myapplication/change_questions.html',{'SM':SM, 'state':state, 'questionForm':questionForm, 'vForm':vForm})
     return render(request, 'myapplication/auth.html')
 def site_manager_groups(request):
     SM = request.user.groups.filter(name='Site_Managers').exists()
