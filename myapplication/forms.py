@@ -33,6 +33,9 @@ class UserForm(forms.Form):
 class UsernameForm(forms.Form):
     username = forms.CharField(label='User Name', max_length=30)
 
+class VerificationForm(forms.Form):
+    vcode = forms.CharField(label='Verification Code', max_length=30)
+
 class EmailForm(forms.Form):
     email = forms.EmailField(label='Email')
 
