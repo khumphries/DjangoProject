@@ -78,16 +78,16 @@
         </br>
       <div class = "container">
       <div class = "well">
-      <p>Current directory: {{path}}</p>
-
+      <p><h4>Current directory: {{path}}</h4></p>
+      </div>
         {% if reports %}
-            <p>Reports in {{dctCurr.stName}}:</p>
+            <div class = "well">
+            <p><h4>Reports in {{dctCurr.stName}}:</h4></p>
             <ul>
             </div>
             {% for report in reports %}
-                <li>
                 <div class = "well">
-		  {{report.name}}
+		            <h3>{{report.name}}</h3>
                     <br>
                 <form action="{% url 'view_report' %}" method="post">
                     {% csrf_token %}
@@ -103,11 +103,10 @@
                     <input type="submit" value="Edit Report" />
                 </form>
                 <br><br>
-                </li>
+                </div>
 
             {% endfor %}
             </ul>
-            </div>
         {% endif %}
       <div class = "container">
       <div class = "well">
@@ -143,9 +142,10 @@
     	    <p>{{stErr}}<p>
     	{% endif %}
 
-        <p><a href="{% url 'create_report' %}">Create a Report</a></p>
-        </div>
-        </div>
+      <a href="{% url 'create_report' %}" class="btn btn-default">Create a Report</a>        
+      </div>
+      </div>
+      </div>
     </body>
 </html>
 
