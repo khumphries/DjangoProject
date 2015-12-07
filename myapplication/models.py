@@ -17,7 +17,9 @@ def validate_dct_stName(stName, dct=None):
         raise ValidationError("cannot create new directory %s in directory %s: directory already exists" % stName,dct.stName)
     
 def validate_report_name(name, report=None):
-    if name in Report.objects.filter(dct=report.dct):
+    if ' ' in name:
+        raise ValidationError("cannot have spaces in names")
+    if name in map(lambda x: x.name, Report.objects.filter(dct=report.dct)):
         raise ValidationError("cannot create new report %s in directory %s: a report with this name already exists" % name,report.dct.stName)
 
 class Dct(models.Model):
