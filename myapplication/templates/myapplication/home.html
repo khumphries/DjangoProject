@@ -76,17 +76,32 @@
         </div>
         <br>
         </br>
+
+        <div class="container">
+        <div class="well">
         <p><a href="{% url 'list' %}">Click here to view the files.</a></p><br>
+        </div>
+        <div class="well">
         <p> You have {{unread}} new messages.
         <p><a href="{% url 'messages' %}">Click here to view and send messages.</a></p><br>
+        </div>
+        <div class="well">
         <p><a href="{% url 'groups_creator' %}">Groups</a></p>
+        </div>
+        <div class="well">
         <p><a href="{% url 'groups' %}">Group list</a></p>
+        </div>
+        <div class="well">
         <p><a href="{% url 'change_password' %}">Password Change</a></p>
         {%if SM %}
+        </div>
+        <div class="well">
         <p><a href="{% url 'Site_manager' %}">Site Manager</a></p>
         {%endif%}
 
-
+        </div>
+        <a href="https://twitter.com/intent/tweet?screen_name=SecureWitnessShare&text=SecureWitnessShare%20is%20awesome!%20It%20let's%20me%20share%20my%20documents%20and%20files%20securely%20to%20whom%20I%20want%2C%20when%20I%20want." class="twitter-mention-button" data-related="SecureWitnessShare">Tweet to @SecureWitnessShare</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
     </body>
 </html>
 

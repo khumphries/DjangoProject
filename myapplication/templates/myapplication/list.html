@@ -76,13 +76,17 @@
         </br>
         <br>
         </br>
+      <div class = "container">
+      <div class = "well">
       <p>Current directory: {{path}}</p>
 
         {% if reports %}
             <p>Reports in {{dctCurr.stName}}:</p>
             <ul>
+            </div>
             {% for report in reports %}
                 <li>
+                <div class = "well">
 		  {{report.name}}
                     <br>
                 <form action="{% url 'view_report' %}" method="post">
@@ -100,16 +104,19 @@
                 </form>
                 <br><br>
                 </li>
+
             {% endfor %}
             </ul>
+            </div>
         {% endif %}
-
+      <div class = "container">
+      <div class = "well">
 	    <form action="{% url 'list' %}" method="post">
               {% csrf_token %}
               <input type="hidden" name="command" value="cd .." />
               <input type="submit" value="Go to parent directory" />
             </form>
-           
+           <br>
 
         {% if rgdct %}
      	<p>Directories in {{dctCurr.stName}}:</p>
@@ -137,6 +144,8 @@
     	{% endif %}
 
         <p><a href="{% url 'create_report' %}">Create a Report</a></p>
+        </div>
+        </div>
     </body>
 </html>
 
