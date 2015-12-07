@@ -86,7 +86,7 @@
             {% csrf_token %}
             <p>{{ form.non_field_errors }}</p>
             <p>{{ form.subject.label_tag }} {{ form.subject }}</p>
-            <p>{{ form.msg.label_tag}} {{ form.msg }}</p>
+            <p>{{ form.msg.label_tag}}<br>{{ form.msg }}</p>
             <p>{{ form.encrypt.label_tag}} {{ form.encrypt }}</p> 
             <p>{{ form.key.label_tag}} {{ form.key }} {{ form.key.help_text }}</p>
             <p>{{ form.receiver.label_tag}} {{ form.receiver }}</p>
