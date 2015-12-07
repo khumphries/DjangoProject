@@ -219,6 +219,7 @@ def edit_report(request):
                     h = SHA256.new()
                     contents = f.read()
                     h.update(contents)
+                    encrypt = f.name[-4:]
                     s = bytes(h.hexdigest(), 'UTF-8')
                     contents = base64.b64encode(contents)
                     if encrypt == '.enc':
