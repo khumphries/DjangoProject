@@ -27,7 +27,7 @@ sudo yum install -y gcc
 sudo yum install -y python34
 sudo yum install -y python34-pip
 sudo yum install -y python34-devel
-sudo pip-3.4 install django
+sudo pip-3.4 install django==1.8.5
 sudo pip-3.4 install pycrypto
 sudo pip-3.4 install whoosh
 
