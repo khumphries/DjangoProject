@@ -721,7 +721,7 @@ def is_SM(request):
 
 def post_request(request):
     if request.method == 'GET':
-        reports = Report.objects.filter(dct=mpuser_dctCurr[request.user.username])
+        reports = Report.objects.all()
         documents = Document.objects.all()
         return render_to_response(
         'myapplication/post_request.html',
