@@ -411,7 +411,7 @@ def forgot_password(request):
                 if user_email == '':
                     state = 'We have no email on record for you.'
                 else:
-                    temp_pass=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
+                    temp_pass=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(20))
                     user.set_password(temp_pass)
                     send_mail('Forgotten password.','The temporary password is "' + temp_pass + '".', settings.EMAIL_HOST_USER, [user_email], fail_silently=False)
                     state = 'Email sent.'
@@ -452,6 +452,13 @@ def home_page(request):
         return render_to_response('myapplication/home.html', {'SM':SM, 'unread':unread})
     else:
         return render(request, 'myapplication/auth.html')
+def send_email(request):
+    if request.user.is_authenticated():
+        user_email = request.user.email
+        send_mail('Forgotten password.','The temporary password is "' + temp_pass + '".', settings.EMAIL_HOST_USER, [user_email], fail_silently=False)
+        return render(request, 'myapplication/site_manager_questions', {'state':state})
+    else:
+        return render(request, 'myapplication/auth.html')
 def site_manager(request):
     SM = request.user.groups.filter(name='Site_Managers').exists()
     if request.user.is_authenticated():
@@ -459,6 +466,15 @@ def site_manager(request):
             return render(request, 'myapplication/Site_manager.html',{'SM':SM})
         else:
             return render(request, 'myapplication/home.html',{'SM':SM})
+    return render(request, 'myapplication/auth.html')
+def site_manager_questions(request):
+    SM = request.user.groups.filter(name='Site_Managers').exists()
+    if request.user.is_authenticated():
+        if is_SM:
+            state = ''
+
+        else:
+            return render(request, 'myapplication/home.html',{'SM':SM, 'state':state, 'form':form})
     return render(request, 'myapplication/auth.html')
 def site_manager_groups(request):
     SM = request.user.groups.filter(name='Site_Managers').exists()
