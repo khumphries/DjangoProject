@@ -114,7 +114,6 @@ def create_report(request):
                 newreport = Report(name = reportform.cleaned_data['name'], shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user, dct=mpuser_dctCurr[request.user.username])
                 newreport.save()
                 site_manager_report_group = Report_Group(group='Site_Managers')
-                site_manager_report_group.save()
                 newreport.report_group_set.add(site_manager_report_group)
 
                 #Adding code to give permissions based on group selected
@@ -672,14 +671,16 @@ def inbox(request):
             message = Message.objects.filter(msg=request.POST.get('msg'), display=True)[0]
             if 'decrypt' in request.POST:
                 key = request.POST.get('key')
-                if key != '':
-                    message.msg = decrypt_msg(message.msg, key)
-                else:
-                    message.msg = decrypt_msg(message.msg)
-                message.encrypt = False
-                message.save()
-                state = "Message Decrypted"
-
+                try:
+                    if key != '':
+                        message.msg = decrypt_msg(message.msg, key)
+                    else:
+                        message.msg = decrypt_msg(message.msg)
+                    message.encrypt = False
+                    message.save()
+                    state = "Message Decrypted"
+                except UnicodeDecodeError:
+                    state = "Error"
             elif 'delete' in request.POST:
                 message.display = False
                 message.save()
