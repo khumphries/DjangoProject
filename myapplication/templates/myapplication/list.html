@@ -93,14 +93,14 @@
                     {% csrf_token %}
                     <input type="hidden" name="shortDescription" value="{{ report.shortDescription }}" />
                     <input type="hidden" name="dateCreated" value="{{ report.timeStamp }}" />
-                    <input type="submit" value="View Files in Report" />
+                    <input type="submit" class = "btn btn-default" value="View Files in Report" />
                 </form>
                 <br>
                 <form action="{% url 'edit_report' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="shortDescription" value="{{ report.shortDescription }}" />
                     <input type="hidden" name="reportID" value="{{ report.reportID }}" />
-                    <input type="submit" value="Edit Report" />
+                    <input type="submit" class = "btn btn-default" value="Edit Report" />
                 </form>
                 <br><br>
                 </div>
@@ -108,12 +108,11 @@
             {% endfor %}
             </ul>
         {% endif %}
-      <div class = "container">
       <div class = "well">
 	    <form action="{% url 'list' %}" method="post">
               {% csrf_token %}
               <input type="hidden" name="command" value="cd .." />
-              <input type="submit" value="Go to parent directory" />
+              <input type="submit" class = "btn btn-default btn-xs" value="Go to parent directory" />
             </form>
            <br>
 
@@ -142,8 +141,7 @@
     	    <p>{{stErr}}<p>
     	{% endif %}
 
-      <a href="{% url 'create_report' %}" class="btn btn-default">Create a Report</a>        
-      </div>
+      <a href="{% url 'create_report' %}" class="btn btn-primary">Create a Report</a>        
       </div>
       </div>
     </body>
