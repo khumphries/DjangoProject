@@ -114,6 +114,7 @@ def create_report(request):
                 newreport = Report(name = reportform.cleaned_data['name'], shortDescription = reportform.cleaned_data['shortDescription'], detailedDescription = reportform.cleaned_data['detailedDescription'], private = reportform.cleaned_data['private'], owner=request.user, dct=mpuser_dctCurr[request.user.username])
                 newreport.save()
                 site_manager_report_group = Report_Group(group='Site_Managers')
+                site_manager_report_group.save()
                 newreport.report_group_set.add(site_manager_report_group)
 
                 #Adding code to give permissions based on group selected
