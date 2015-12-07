@@ -8,13 +8,15 @@ import urllib
 import base64
 import binascii
 
-comList = ["encrypt", "decrypt", "reports", "hash", "download", "exit"];
+comList = ["reports", "encrypt <filename> <opt:key>", "decrypt <filename> <opt:key>", "hash <filename>", "download <Document Number>", "exit"];
 argv = []
 
 def reports():
     # query reports
     print("Reports: ")
-    r = requests.get("http://127.0.0.1:8000/post_request/")
+    conf = open('config.txt', 'r')
+    address = conf.read()
+    r = requests.get(address)
     text = "\n".join([ll.rstrip() for ll in r.text.splitlines() if ll.strip()])
     #r = urllib.request.urlopen("http://127.0.0.1:8000/post_request/", params = {user.username = "hatpat"})
     #print(str(r.read()))
@@ -25,7 +27,9 @@ def download():
     if (len(argv) < 2):
         print("Please indicate file to download.")
     else:
-        r = requests.get("http://127.0.0.1:8000/post_request/")
+        conf = open('config.txt', 'r')
+        address = conf.read()
+        r = requests.get(address)
         text = "\n".join([ll.rstrip() for ll in r.text.splitlines() if ll.strip()])
         splitted = text.split("%^%-")
         slashrem = (splitted[int(argv[1])*2-1][1:]).rfind("/")
