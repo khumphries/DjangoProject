@@ -46,9 +46,10 @@ class GroupsForm(forms.Form):
     groupname = forms.CharField(label='Group Name', max_length=80)
     CHOICES = (('1','Create group',),('2','Add user to group',))
     choice_field = forms.ChoiceField(widget=forms.RadioSelect,choices=CHOICES)
+
 class MessageForm(forms.Form):
     subject = forms.CharField(label="Subject", max_length=50)
-    msg = forms.CharField(label="Message", max_length=500)
+    msg = forms.CharField(widget=forms.Textarea(attrs={'cols': 40, 'rows': 5}), label="Message", max_length=500)
     receiver = forms.CharField(label="Recipient", max_length=30)
     encrypt = forms.BooleanField(label="Encrypt Message", initial=False, required=False)
     key = forms.CharField(label="Key", max_length = 50, help_text='Any string. Leave blank to use default key', required=False)

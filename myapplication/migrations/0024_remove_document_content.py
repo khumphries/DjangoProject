@@ -7,8 +7,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('myapplication', '0022_document_content'),
-        ('myapplication', '0022_document_encrypt'),
+        ('myapplication', '0023_merge'),
+    ]
 
     operations = [
+        migrations.RemoveField(
+            model_name='document',
+            name='content',
+        ),
     ]
